@@ -132,9 +132,9 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:latest,${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:${{ github.sha }}
-        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:buildcache
-        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:buildcache,mode=max
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:latest,${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:${{ github.sha }}
+        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:buildcache
+        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:buildcache,mode=max
 
         # Déploiement en environnement de développement (Docker)
   deploy-dev:
@@ -182,10 +182,10 @@ jobs:
         context: .
         push: true
         tags: |
-          ${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:dev-${{ github.sha }}
-          ghcr.io/${{ github.repository_owner }}/gestion-etablissement:dev-${{ github.sha }}
-        cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/gestion-etablissement:dev-cache
-        cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/gestion-etablissement:dev-cache,mode=max
+          ${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:dev-${{ github.sha }}
+          ghcr.io/${{ github.repository_owner }}/devopsgitaction:dev-${{ github.sha }}
+        cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/devopsgitaction:dev-cache
+        cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/devopsgitaction:dev-cache,mode=max
     
     # Déploiement automatique sur l'environnement de développement
     - name: Deploy to Dev Environment
@@ -195,7 +195,7 @@ jobs:
         version: '3'
         services:
           app:
-            image: ghcr.io/${{ github.repository_owner }}/gestion-etablissement:dev-${{ github.sha }}
+            image: ghcr.io/${{ github.repository_owner }}/devopsgitaction:dev-${{ github.sha }}
             ports:
               - "3000:3000"
             environment:
@@ -246,8 +246,8 @@ jobs:
       run: |
         echo "Application packagée et déployée pour l'environnement de développement"
         echo "Images Docker: "
-        echo "- ${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:dev-${{ github.sha }}"
-        echo "- ghcr.io/${{ github.repository_owner }}/gestion-etablissement:dev-${{ github.sha }}"
+        echo "- ${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:dev-${{ github.sha }}"
+        echo "- ghcr.io/${{ github.repository_owner }}/devopsgitaction:dev-${{ github.sha }}"
 
   # Déploiement en environnement de staging (Kubernetes)
   deploy-staging:
@@ -295,10 +295,10 @@ jobs:
         context: .
         push: true
         tags: |
-          ${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:staging-${{ github.sha }}
-          ghcr.io/${{ github.repository_owner }}/gestion-etablissement:staging-${{ github.sha }}
-        cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/gestion-etablissement:staging-cache
-        cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/gestion-etablissement:staging-cache,mode=max
+          ${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:staging-${{ github.sha }}
+          ghcr.io/${{ github.repository_owner }}/devopsgitaction:staging-${{ github.sha }}
+        cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/devopsgitaction:staging-cache
+        cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/devopsgitaction:staging-cache,mode=max
     
     # Création des fichiers manifests Kubernetes
     - name: Create Kubernetes manifests
@@ -324,15 +324,15 @@ jobs:
           replicas: 2
           selector:
             matchLabels:
-              app: gestion-etablissement
+              app: devopsgitaction
           template:
             metadata:
               labels:
-                app: gestion-etablissement
+                app: devopsgitaction
             spec:
               containers:
               - name: app
-                image: ghcr.io/${{ github.repository_owner }}/gestion-etablissement:staging-${{ github.sha }}
+                image: ghcr.io/${{ github.repository_owner }}/devopsgitaction:staging-${{ github.sha }}
                 ports:
                 - containerPort: 3000
                 resources:
@@ -356,7 +356,7 @@ jobs:
           namespace: staging
         spec:
           selector:
-            app: gestion-etablissement
+            app: devopsgitaction
           ports:
           - port: 80
             targetPort: 3000
@@ -421,8 +421,8 @@ jobs:
       run: |
         echo "Application packagée et déployée pour l'environnement de staging"
         echo "Images Docker: "
-        echo "- ${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:staging-${{ github.sha }}"
-        echo "- ghcr.io/${{ github.repository_owner }}/gestion-etablissement:staging-${{ github.sha }}"
+        echo "- ${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:staging-${{ github.sha }}"
+        echo "- ghcr.io/${{ github.repository_owner }}/devopsgitaction:staging-${{ github.sha }}"
         
         # Instrumentation de l'application pour les métriques
   instrument-app:
@@ -569,9 +569,9 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:preprod-latest,${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:preprod-${{ github.sha }}
-        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:preprod-cache
-        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:preprod-cache,mode=max
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:preprod-latest,${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:preprod-${{ github.sha }}
+        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:preprod-cache
+        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:preprod-cache,mode=max
     
     # Déploiement automatique sur l'environnement de préproduction
     - name: Deploy to Preproduction Environment
@@ -586,10 +586,10 @@ jobs:
           
           # Déploiement via SSH
           ssh ${{ secrets.PREPROD_SSH_USER }}@preprod-server.example.com "
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:preprod-${{ github.sha }} &&
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:preprod-${{ github.sha }} &&
             docker stop app-container || true &&
             docker rm app-container || true &&
-            docker run -d --name app-container -p 80:3000 -e NODE_ENV=preproduction ${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:preprod-${{ github.sha }}
+            docker run -d --name app-container -p 80:3000 -e NODE_ENV=preproduction ${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:preprod-${{ github.sha }}
           "
           echo "Application déployée automatiquement sur le serveur de préproduction"
         else
@@ -600,7 +600,7 @@ jobs:
     - name: Notify Preprod Deployment
       run: |
         echo "Application déployée pour l'environnement de préproduction"
-        echo "Image Docker: ${{ secrets.DOCKERHUB_USERNAME }}/gestion-etablissement:preprod-${{ github.sha }}"
+        echo "Image Docker: ${{ secrets.DOCKERHUB_USERNAME }}/devopsgitaction:preprod-${{ github.sha }}"
 
   # Déploiement en production
   deploy-production:
