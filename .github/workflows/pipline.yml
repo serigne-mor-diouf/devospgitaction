@@ -27,37 +27,72 @@ jobs:
         cache: maven
 
     # Tests et Installation des Microservices
-    - name: Build & Test Microservice Cours
+    - name: Initialize Maven Wrapper and Build & Test Microservice Cours
       run: |
-        cd microservice-gestion-cours
+        if [ ! -d "microservice-gestion-cours" ]; then
+          echo "Creating microservice-gestion-cours directory"
+          mkdir microservice-gestion-cours
+          cd microservice-gestion-cours
+          mvn -N wrapper:wrapper
+        else
+          cd microservice-gestion-cours
+        fi
         chmod +x mvnw
         ./mvnw clean install
         ./mvnw test
 
-    - name: Build & Test Microservice Professeur
+    - name: Initialize Maven Wrapper and Build & Test Microservice Professeur
       run: |
-        cd microservice-gestion-professeur
+        if [ ! -d "microservice-gestion-professeur" ]; then
+          echo "Creating microservice-gestion-professeur directory"
+          mkdir microservice-gestion-professeur
+          cd microservice-gestion-professeur
+          mvn -N wrapper:wrapper
+        else
+          cd microservice-gestion-professeur
+        fi
         chmod +x mvnw
         ./mvnw clean install
         ./mvnw test
 
-    - name: Build & Test Microservice Etudiant
+    - name: Initialize Maven Wrapper and Build & Test Microservice Etudiant
       run: |
-        cd microservice-gestion-etudiant
+        if [ ! -d "microservice-gestion-etudiant" ]; then
+          echo "Creating microservice-gestion-etudiant directory"
+          mkdir microservice-gestion-etudiant
+          cd microservice-gestion-etudiant
+          mvn -N wrapper:wrapper
+        else
+          cd microservice-gestion-etudiant
+        fi
         chmod +x mvnw
         ./mvnw clean install
         ./mvnw test
 
-    - name: Build & Test Microservice Classe
+    - name: Initialize Maven Wrapper and Build & Test Microservice Classe
       run: |
-        cd microservice-gestion-classe
+        if [ ! -d "microservice-gestion-classe" ]; then
+          echo "Creating microservice-gestion-classe directory"
+          mkdir microservice-gestion-classe
+          cd microservice-gestion-classe
+          mvn -N wrapper:wrapper
+        else
+          cd microservice-gestion-classe
+        fi
         chmod +x mvnw
         ./mvnw clean install
         ./mvnw test
 
-    - name: Build & Test Microservice Emploi du Temps
+    - name: Initialize Maven Wrapper and Build & Test Microservice Emploi du Temps
       run: |
-        cd microservice-gestion-emploi-temps
+        if [ ! -d "microservice-gestion-emploi-temps" ]; then
+          echo "Creating microservice-gestion-emploi-temps directory"
+          mkdir microservice-gestion-emploi-temps
+          cd microservice-gestion-emploi-temps
+          mvn -N wrapper:wrapper
+        else
+          cd microservice-gestion-emploi-temps
+        fi
         chmod +x mvnw
         ./mvnw clean install
         ./mvnw test
