@@ -66,19 +66,19 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
+        node-version: '16'
         cache: 'npm'
         cache-dependency-path: frontenddevops/package-lock.json
         
     # Installation Frontend (Angular)
-    - name: Install Frontend Dependencies
+    - name: Install frontenddevops Dependencies
       run: |
         cd frontenddevops
         npm install -g @angular/cli
         npm ci
         
     # Tests Frontend (Angular)
-    - name: Run Frontend Tests
+    - name: Run frontenddevops Tests
       run: |
         cd frontenddevops
         npm test -- --watch=false --browsers=ChromeHeadless
@@ -125,7 +125,7 @@ jobs:
       with:
         node-version: '18'
         
-    - name: Build Frontend
+    - name: Build frontenddevops
       run: |
         cd frontenddevops
         npm install -g @angular/cli
@@ -247,7 +247,7 @@ jobs:
     cat > docker-compose.yml <<EOF
     version: '3'
     services:
-      frontend:
+      frontenddevops:
         image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
         ports:
           - "80:80"
