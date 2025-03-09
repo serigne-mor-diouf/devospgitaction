@@ -66,19 +66,19 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16'
+        node-version: '18'
         cache: 'npm'
         cache-dependency-path: frontenddevops/package-lock.json
         
     # Installation Frontend (Angular)
-    - name: Install frontenddevops Dependencies
+    - name: Install Frontend Dependencies
       run: |
         cd frontenddevops
         npm install -g @angular/cli
         npm ci
         
     # Tests Frontend (Angular)
-    - name: Run frontenddevops Tests
+    - name: Run Frontend Tests
       run: |
         cd frontenddevops
         npm test -- --watch=false --browsers=ChromeHeadless
@@ -125,7 +125,7 @@ jobs:
       with:
         node-version: '18'
         
-    - name: Build frontenddevops
+    - name: Build Frontend
       run: |
         cd frontenddevops
         npm install -g @angular/cli
@@ -240,56 +240,55 @@ jobs:
         echo "Vérification de la santé des microservices"
         # Ajoutez ici vos commandes de monitoring 
 
-# Configuration pour le déploiement
-- name: Deploy Services
-  run: |
-    # Création du docker-compose pour le déploiement
-    cat > docker-compose.yml <<EOF
-    version: '3'
-    services:
-      frontenddevops:
-        image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
-        ports:
-          - "80:80"
-        depends_on:
-          - cours
-          - professeur
-          - etudiant
-          - classe
-          - emploi-temps
+    - name: Deploy Services
+      run: |
+        # Création du docker-compose pour le déploiement
+        cat > docker-compose.yml <<EOF
+        version: '3'
+        services:
+          frontend:
+            image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
+            ports:
+              - "80:80"
+            depends_on:
+              - cours
+              - professeur
+              - etudiant
+              - classe
+              - emploi-temps
 
-      cours:
-        image: ${{ secrets.DOCKERHUB_USERNAME }}/cours:latest
-        ports:
-          - "9001:9001"
-        environment:
-          - SERVER_PORT=9001
-          
-      professeur:
-        image: ${{ secrets.DOCKERHUB_USERNAME }}/professeur:latest
-        ports:
-          - "9002:9002"
-        environment:
-          - SERVER_PORT=9002
-          
-      etudiant:
-        image: ${{ secrets.DOCKERHUB_USERNAME }}/etudiant:latest
-        ports:
-          - "9003:9003"
-        environment:
-          - SERVER_PORT=9003
-          
-      classe:
-        image: ${{ secrets.DOCKERHUB_USERNAME }}/classe:latest
-        ports:
-          - "9004:9004"
-        environment:
-          - SERVER_PORT=9004
-          
-      emploi-temps:
-        image: ${{ secrets.DOCKERHUB_USERNAME }}/emploi-temps:latest
-        ports:
-          - "9005:9005"
-        environment:
-          - SERVER_PORT=9005
-    EOF 
+          cours:
+            image: ${{ secrets.DOCKERHUB_USERNAME }}/cours:latest
+            ports:
+              - "9001:9001"
+            environment:
+              - SERVER_PORT=9001
+              
+          professeur:
+            image: ${{ secrets.DOCKERHUB_USERNAME }}/professeur:latest
+            ports:
+              - "9002:9002"
+            environment:
+              - SERVER_PORT=9002
+              
+          etudiant:
+            image: ${{ secrets.DOCKERHUB_USERNAME }}/etudiant:latest
+            ports:
+              - "9003:9003"
+            environment:
+              - SERVER_PORT=9003
+              
+          classe:
+            image: ${{ secrets.DOCKERHUB_USERNAME }}/classe:latest
+            ports:
+              - "9004:9004"
+            environment:
+              - SERVER_PORT=9004
+              
+          emploi-temps:
+            image: ${{ secrets.DOCKERHUB_USERNAME }}/emploi-temps:latest
+            ports:
+              - "9005:9005"
+            environment:
+              - SERVER_PORT=9005
+        EOF 
