@@ -115,7 +115,15 @@ jobs:
           exit 1
         fi
         cd frontenddevops
-        npm install --legacy-peer-deps || npm ci --legacy-peer-deps
+        
+        # Modifier package.json pour corriger @angular/localize si nécessaire
+        if grep -q '"@angular/localize": "\^19.2.0"' package.json; then
+          echo "Correcting @angular/localize version in package.json"
+          sed -i 's/"@angular\/localize": "\^19.2.0"/"@angular\/localize": "\^16.2.0"/g' package.json
+        fi
+        
+        # Installer avec --legacy-peer-deps
+        npm install --legacy-peer-deps --no-fund || npm ci --legacy-peer-deps --no-fund || npm install --force
       timeout-minutes: 5
         
     # Tests Frontend (Angular) avec --legacy-peer-deps
@@ -186,7 +194,15 @@ jobs:
           exit 1
         fi
         cd frontenddevops
-        npm install --legacy-peer-deps
+        
+        # Modifier package.json pour corriger @angular/localize si nécessaire
+        if grep -q '"@angular/localize": "\^19.2.0"' package.json; then
+          echo "Correcting @angular/localize version in package.json"
+          sed -i 's/"@angular\/localize": "\^19.2.0"/"@angular\/localize": "\^16.2.0"/g' package.json
+        fi
+        
+        # Installer et construire avec --legacy-peer-deps
+        npm install --legacy-peer-deps --no-fund
         npm run build --legacy-peer-deps || ng build --legacy-peer-deps || echo "Frontend build failed but continuing"
       timeout-minutes: 5
         
