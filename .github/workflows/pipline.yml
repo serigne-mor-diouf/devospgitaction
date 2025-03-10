@@ -13,13 +13,10 @@ jobs:
   test-and-quality:
     name: Tests et Qualité
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
     
     # Configuration Java pour Spring Boot
     - name: Set up JDK 17
@@ -28,123 +25,131 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-        cache-dependency-path: '**/pom.xml'
-
-    # Téléchargement des dépendances Maven
-    - name: Download Maven dependencies
-      run: |
-        for service in microservice-gestion-*; do
-          if [ -d "$service" ] && [ -f "$service/pom.xml" ]; then
-            echo "Downloading dependencies for $service"
-            cd $service
-            mvn dependency:go-offline -B
-            cd ..
-          fi
-        done
-      timeout-minutes: 5
 
     # Tests et Installation des Microservices
-    - name: Build & Test Microservices
+    - name: Initialize Maven Wrapper and Build & Test Microservice Cours
       run: |
-        for service in microservice-gestion-cours microservice-gestion-prof microservice-gestion-etudiant microservice-gestion-classe microservice-gestion-emploi-du-temp; do
-          if [ ! -d "$service" ]; then
-            echo "$service directory not found, skipping"
-            continue
-          fi
-          
-          echo "Building and testing $service"
-          cd $service
-          mvn -B clean install -DskipTests
-          mvn -B test || echo "Tests may have failed but continuing"
-          cd ..
-        done
-      timeout-minutes: 10
+        if [ ! -d "microservice-gestion-cours" ]; then
+          echo "microservice-gestion-cours directory not found"
+          exit 1
+        fi
+        cd microservice-gestion-cours
+        # Générer le wrapper Maven s'il n'existe pas
+        if [ ! -f "mvnw" ]; then
+          mvn -N wrapper:wrapper
+        fi
+        chmod +x mvnw
+        ./mvnw clean install -DskipTests
+        ./mvnw test || echo "Tests may have failed but continuing"
+
+    - name: Initialize Maven Wrapper and Build & Test Microservice Prof
+      run: |
+        if [ ! -d "microservice-gestion-prof" ]; then
+          echo "microservice-gestion-prof directory not found"
+          exit 1
+        fi
+        cd microservice-gestion-prof
+        # Générer le wrapper Maven s'il n'existe pas
+        if [ ! -f "mvnw" ]; then
+          mvn -N wrapper:wrapper
+        fi
+        chmod +x mvnw
+        ./mvnw clean install -DskipTests
+        ./mvnw test || echo "Tests may have failed but continuing"
+
+    - name: Initialize Maven Wrapper and Build & Test Microservice Etudiant
+      run: |
+        if [ ! -d "microservice-gestion-etudiant" ]; then
+          echo "microservice-gestion-etudiant directory not found"
+          exit 1
+        fi
+        cd microservice-gestion-etudiant
+        # Générer le wrapper Maven s'il n'existe pas
+        if [ ! -f "mvnw" ]; then
+          mvn -N wrapper:wrapper
+        fi
+        chmod +x mvnw
+        ./mvnw clean install -DskipTests
+        ./mvnw test || echo "Tests may have failed but continuing"
+
+    - name: Initialize Maven Wrapper and Build & Test Microservice Classe
+      run: |
+        if [ ! -d "microservice-gestion-classe" ]; then
+          echo "microservice-gestion-classe directory not found"
+          exit 1
+        fi
+        cd microservice-gestion-classe
+        # Générer le wrapper Maven s'il n'existe pas
+        if [ ! -f "mvnw" ]; then
+          mvn -N wrapper:wrapper
+        fi
+        chmod +x mvnw
+        ./mvnw clean install -DskipTests
+        ./mvnw test || echo "Tests may have failed but continuing"
+
+    - name: Initialize Maven Wrapper and Build & Test Microservice Emploi du Temps
+      run: |
+        if [ ! -d "microservice-gestion-emploi-du-temp" ]; then
+          echo "microservice-gestion-emploi-du-temp directory not found"
+          exit 1
+        fi
+        cd microservice-gestion-emploi-du-temp
+        # Générer le wrapper Maven s'il n'existe pas
+        if [ ! -f "mvnw" ]; then
+          mvn -N wrapper:wrapper
+        fi
+        chmod +x mvnw
+        ./mvnw clean install -DskipTests
+        ./mvnw test || echo "Tests may have failed but continuing"
         
-    # Configuration Node.js pour Angular
+    # Configuration Node.js pour Angular    
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
-
+        cache: 'npm'
+        cache-dependency-path: frontenddevops/package-lock.json
+        
     # Installation Frontend (Angular)
     - name: Install Frontend Dependencies
       run: |
         if [ ! -d "frontenddevops" ]; then
-          echo "frontenddevops directory not found, skipping frontend steps"
-          exit 0
+          echo "frontenddevops directory not found"
+          exit 1
         fi
-        
         cd frontenddevops
-        
-        # Corriger @angular/localize si nécessaire
-        if grep -q '"@angular/localize": "\^19.2.0"' package.json; then
-          echo "Correcting @angular/localize version in package.json"
-          sed -i 's/"@angular\/localize": "\^19.2.0"/"@angular\/localize": "\^16.2.0"/g' package.json
-        fi
-        
-        # Nettoyer pour une installation propre
-        rm -rf node_modules
-        npm cache clean --force
-        
-        # Installer avec plusieurs options de fallback
-        echo "Installing npm dependencies with --legacy-peer-deps"
-        npm install --legacy-peer-deps --no-fund || 
-        npm install --force --no-fund || 
-        npm install --legacy-peer-deps --force --no-fund
-        
-        # Vérifier l'installation
-        if [ -d "node_modules" ]; then
-          echo "Frontend dependencies installed successfully"
-        else
-          echo "Warning: node_modules directory not found after installation"
-        fi
-      timeout-minutes: 5
+        npm install -g @angular/cli
+        npm ci || npm install
         
     # Tests Frontend (Angular)
     - name: Run Frontend Tests
       run: |
-        if [ ! -d "frontenddevops" ]; then
-          echo "frontenddevops directory not found, skipping frontend tests"
-          exit 0
-        fi
-        
         cd frontenddevops
-        if [ ! -d "node_modules" ]; then
-          echo "node_modules not found, skipping frontend tests"
-          exit 0
-        fi
-        
-        echo "Running frontend tests"
-        npm test --legacy-peer-deps -- --watch=false --browsers=ChromeHeadless || echo "Frontend tests may have failed but continuing"
-      timeout-minutes: 3
+        npm test -- --watch=false --browsers=ChromeHeadless || echo "Frontend tests may have failed but continuing"
         
     # Analyse de qualité
     - name: Code Quality Analysis
       run: |
-        # Frontend linting
-        if [ -d "frontenddevops" ] && [ -d "frontenddevops/node_modules" ]; then
-          cd frontenddevops
-          echo "Running frontend linting"
-          npm run lint --legacy-peer-deps || echo "Linting may have failed but continuing"
-          cd ..
-        fi
+        cd frontenddevops
+        npm run lint || echo "Linting may have failed but continuing"
         
-        # Backend quality checks
         for service in microservice-gestion-*; do
           if [ -d "$service" ]; then
-            echo "Running quality checks for $service"
             cd $service
-            mvn -B checkstyle:check || echo "Checkstyle may have failed but continuing"
+            if [ -f "mvnw" ]; then
+              chmod +x mvnw
+              ./mvnw checkstyle:check || echo "Checkstyle may have failed but continuing"
+            else
+              echo "mvnw not found in $service"
+            fi
             cd ..
           fi
         done
-      timeout-minutes: 3
 
   build-and-package:
     name: Build et Packaging
     needs: test-and-quality
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     
     steps:
     - name: Checkout code
@@ -156,22 +161,23 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: maven
-        cache-dependency-path: '**/pom.xml'
         
     - name: Build Microservices
       run: |
         for service in microservice-gestion-*; do
-          if [ -d "$service" ] && [ -f "$service/pom.xml" ]; then
+          if [ -d "$service" ]; then
             echo "Building $service"
             cd $service
-            mvn -B clean package -DskipTests
+            if [ ! -f "mvnw" ]; then
+              mvn -N wrapper:wrapper
+            fi
+            chmod +x mvnw
+            ./mvnw clean package -DskipTests
             cd ..
           fi
         done
-      timeout-minutes: 10
         
-    # Build Frontend
+    # Build Frontend    
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
@@ -180,46 +186,13 @@ jobs:
     - name: Build Frontend
       run: |
         if [ ! -d "frontenddevops" ]; then
-          echo "frontenddevops directory not found, skipping frontend build"
-          exit 0
+          echo "frontenddevops directory not found"
+          exit 1
         fi
-        
         cd frontenddevops
-        
-        # Corriger @angular/localize si nécessaire
-        if grep -q '"@angular/localize": "\^19.2.0"' package.json; then
-          echo "Correcting @angular/localize version in package.json"
-          sed -i 's/"@angular\/localize": "\^19.2.0"/"@angular\/localize": "\^16.2.0"/g' package.json
-        fi
-        
-        # Installer les dépendances si nécessaire
-        if [ ! -d "node_modules" ]; then
-          echo "Installing dependencies"
-          npm install --legacy-peer-deps --no-fund || npm install --force --no-fund
-        fi
-        
-        # Vérifier les scripts disponibles
-        echo "Available npm scripts:"
-        npm run || true
-        
-        # Tenter de construire avec différentes commandes
-        echo "Building frontend"
-        npm run build --legacy-peer-deps || 
-        npx ng build --legacy-peer-deps || 
-        npx @angular/cli@16 build --legacy-peer-deps || 
-        echo "Frontend build failed but continuing"
-        
-        # Vérifier si le build a réussi
-        if [ -d "dist" ]; then
-          echo "Build successful, dist directory created"
-          ls -la dist
-        else
-          echo "Warning: dist directory not found after build"
-          mkdir -p dist/frontenddevops
-          echo "<html><body><h1>Placeholder</h1></body></html>" > dist/frontenddevops/index.html
-          echo "Created placeholder dist directory"
-        fi
-      timeout-minutes: 5
+        npm install -g @angular/cli
+        npm ci || npm install
+        ng build --configuration=production || ng build --prod || echo "Frontend build failed but continuing"
         
     # Package as artifacts
     - name: Upload build artifacts
@@ -231,7 +204,6 @@ jobs:
           frontenddevops/dist
         compression-level: 0
         retention-days: 5
-        if-no-files-found: warn
         
     # Build Docker Images
     - name: Set up Docker Buildx
@@ -246,27 +218,18 @@ jobs:
     - name: Build and push Docker images
       run: |
         # Vérifier si le frontend existe
-        if [ -d "frontenddevops" ]; then
+        if [ -d "frontenddevops" ] && [ -f "frontenddevops/Dockerfile" ]; then
           echo "Building frontend Docker image"
-          
-          # Créer un Dockerfile simple si nécessaire
-          if [ ! -f "frontenddevops/Dockerfile" ]; then
-            echo "Creating Dockerfile for frontend"
-            echo "FROM nginx:alpine" > frontenddevops/Dockerfile
-            echo "COPY dist/ /usr/share/nginx/html" >> frontenddevops/Dockerfile
-            echo "EXPOSE 80" >> frontenddevops/Dockerfile
-            echo "CMD [\"nginx\", \"-g\", \"daemon off;\"]" >> frontenddevops/Dockerfile
-          fi
-          
-          # Créer un répertoire dist si nécessaire
-          if [ ! -d "frontenddevops/dist" ]; then
-            echo "Creating placeholder dist directory"
-            mkdir -p frontenddevops/dist
-            echo "<html><body><h1>Placeholder</h1></body></html>" > frontenddevops/dist/index.html
-          fi
-          
-          echo "Building and pushing frontend Docker image"
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest ./frontenddevops
+          docker build -f frontenddevops/Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest ./frontenddevops
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
+        else
+          echo "Frontend Dockerfile not found, creating a simple one"
+          mkdir -p frontenddevops/dist
+          echo "FROM nginx:alpine" > frontenddevops/Dockerfile
+          echo "COPY dist/ /usr/share/nginx/html" >> frontenddevops/Dockerfile
+          echo "EXPOSE 80" >> frontenddevops/Dockerfile
+          echo "CMD [\"nginx\", \"-g\", \"daemon off;\"]" >> frontenddevops/Dockerfile
+          docker build -f frontenddevops/Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest ./frontenddevops
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
         fi
 
@@ -287,9 +250,9 @@ jobs:
             
             echo "Building $service on port $PORT"
             
-            # Créer un Dockerfile simple si nécessaire
+            # Vérifier si Dockerfile existe
             if [ ! -f "$service/Dockerfile" ]; then
-              echo "Creating Dockerfile for $service"
+              echo "Dockerfile not found in $service, creating a simple one"
               echo "FROM openjdk:17-jdk-slim" > $service/Dockerfile
               echo "ARG PORT=8080" >> $service/Dockerfile
               echo "ENV SERVER_PORT=\${PORT}" >> $service/Dockerfile
@@ -298,27 +261,20 @@ jobs:
               echo "ENTRYPOINT [\"java\", \"-jar\", \"/app.jar\"]" >> $service/Dockerfile
             fi
             
-            # Vérifier si le JAR existe
-            if [ ! -f "$service/target/*.jar" ]; then
-              echo "JAR file not found, creating empty target directory"
-              mkdir -p $service/target
-              touch $service/target/placeholder.jar
-            fi
-            
             # Build avec le port configuré
-            echo "Building and pushing Docker image for $service"
             docker build -f $service/Dockerfile \
               --build-arg PORT=$PORT \
               -t ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest \
               -t ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:${{ github.sha }} \
-              ./$service || echo "Docker build failed for $service but continuing"
+              ./$service
             
             # Push des images
-            docker push ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest || echo "Docker push failed for $service but continuing"
-            docker push ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:${{ github.sha }} || echo "Docker push failed for $service but continuing"
+            docker push ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest
+            docker push ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:${{ github.sha }}
+          else
+            echo "Service directory $service not found, skipping"
           fi
         done
-      timeout-minutes: 10
 
   deploy-dev:
     name: Deploy to Development
@@ -427,4 +383,4 @@ jobs:
               - SERVER_PORT=9005
         EOF
         
-        echo "Docker Compose file created successfully" 
+        echo "Docker Compose file created successfully"
