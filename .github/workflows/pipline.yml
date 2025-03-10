@@ -99,13 +99,20 @@ jobs:
         mvn -B test || echo "Tests may have failed but continuing"
       timeout-minutes: 3
         
-    # Configuration Node.js pour Angular    
+    # Configuration Node.js pour Angular sans cache automatique
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: frontenddevops/package-lock.json
+
+    # Cache manuel des dépendances npm
+    - name: Cache npm dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('frontenddevops/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
         
     # Installation Frontend (Angular) avec --legacy-peer-deps
     - name: Install Frontend Dependencies
@@ -184,8 +191,15 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: frontenddevops/package-lock.json
+
+    # Cache manuel des dépendances npm
+    - name: Cache npm dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('frontenddevops/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
         
     - name: Build Frontend
       run: |
@@ -194,14 +208,6 @@ jobs:
           exit 1
         fi
         cd frontenddevops
-        
-        # Modifier package.json pour corriger @angular/localize si nécessaire
-        if grep -q '"@angular/localize": "\^19.2.0"' package.json; then
-          echo "Correcting @angular/localize version in package.json"
-          sed -i 's/"@angular\/localize": "\^19.2.0"/"@angular\/localize": "\^16.2.0"/g' package.json
-        fi
-        
-        # Installer et construire avec --legacy-peer-deps
         npm install --legacy-peer-deps --no-fund
         npm run build --legacy-peer-deps || ng build --legacy-peer-deps || echo "Frontend build failed but continuing"
       timeout-minutes: 5
