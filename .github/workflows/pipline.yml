@@ -107,7 +107,7 @@ jobs:
         cache: 'npm'
         cache-dependency-path: frontenddevops/package-lock.json
         
-    # Installation Frontend (Angular)
+    # Installation Frontend (Angular) avec --legacy-peer-deps
     - name: Install Frontend Dependencies
       run: |
         if [ ! -d "frontenddevops" ]; then
@@ -115,21 +115,21 @@ jobs:
           exit 1
         fi
         cd frontenddevops
-        npm ci || npm install
-      timeout-minutes: 3
+        npm install --legacy-peer-deps || npm ci --legacy-peer-deps
+      timeout-minutes: 5
         
-    # Tests Frontend (Angular)
+    # Tests Frontend (Angular) avec --legacy-peer-deps
     - name: Run Frontend Tests
       run: |
         cd frontenddevops
-        npm test -- --watch=false --browsers=ChromeHeadless || echo "Frontend tests may have failed but continuing"
+        npm test --legacy-peer-deps -- --watch=false --browsers=ChromeHeadless || echo "Frontend tests may have failed but continuing"
       timeout-minutes: 3
         
     # Analyse de qualité
     - name: Code Quality Analysis
       run: |
         cd frontenddevops
-        npm run lint || echo "Linting may have failed but continuing"
+        npm run lint --legacy-peer-deps || echo "Linting may have failed but continuing"
         
         for service in microservice-gestion-*; do
           if [ -d "$service" ]; then
@@ -171,7 +171,7 @@ jobs:
         done
       timeout-minutes: 10
         
-    # Build Frontend    
+    # Build Frontend avec --legacy-peer-deps
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
@@ -186,8 +186,8 @@ jobs:
           exit 1
         fi
         cd frontenddevops
-        npm ci || npm install
-        npm run build || ng build || echo "Frontend build failed but continuing"
+        npm install --legacy-peer-deps
+        npm run build --legacy-peer-deps || ng build --legacy-peer-deps || echo "Frontend build failed but continuing"
       timeout-minutes: 5
         
     # Package as artifacts
