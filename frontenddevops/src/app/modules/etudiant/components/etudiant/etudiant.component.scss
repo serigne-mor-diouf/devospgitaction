@@ -1,0 +1,20 @@
+.table {
+  th {
+    background-color: #f8f9fa;
+  }
+  td {
+    vertical-align: middle;
+  }
+}
+
+.status-badge {
+  padding: 0.5em 0.8em;
+  border-radius: 0.25rem;
+}
+
+.search-box {
+  position: relative;
+  .form-control {
+    padding-right: 2.5rem;
+  }
+} 

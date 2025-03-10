@@ -1,0 +1,18 @@
+.table {
+  th {
+    background-color: #f8f9fa;
+  }
+  td {
+    vertical-align: middle;
+  }
+}
+
+.amount {
+  font-weight: 500;
+  &.positive {
+    color: #28a745;
+  }
+  &.negative {
+    color: #dc3545;
+  }
+} 

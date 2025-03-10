@@ -1,0 +1,284 @@
+<div class="container-fluid px-4">
+    <!-- Header avec statistiques -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Total Étudiants</h6>
+                            <h2 class="mb-0">{{totalEtudiants}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Actifs</h6>
+                            <h2 class="mb-0">{{totalActifs}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Nouveaux</h6>
+                            <h2 class="mb-0">{{totalNouveaux}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Par Classe</h6>
+                            <h2 class="mb-0">{{moyenneParClasse}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-school"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barre d'actions -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" (click)="openModal(inscriptionModal)">
+                            <i class="fas fa-plus-circle me-2"></i>Nouvel Étudiant
+                        </button>
+                        <button class="btn btn-success" (click)="exportToExcel()">
+                            <i class="fas fa-file-excel me-2"></i>Export Excel
+                        </button>
+                        <button class="btn btn-danger" (click)="exportToPDF()">
+                            <i class="fas fa-file-pdf me-2"></i>Export PDF
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <input type="text" class="form-control" 
+                               [(ngModel)]="searchTerm" 
+                               (ngModelChange)="onSearch()"
+                               placeholder="Rechercher un étudiant...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des étudiants -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Liste des Étudiants</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Email</th>
+                            <th>Téléphone</th>
+                            <th>Classe</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let etudiant of etudiants">
+                            <td>{{etudiant.matricule}}</td>
+                            <td>{{etudiant.nom}}</td>
+                            <td>{{etudiant.prenom}}</td>
+                            <td>{{etudiant.email}}</td>
+                            <td>{{etudiant.telephone}}</td>
+                            <td>
+                                <span class="badge" [ngClass]="{
+                                    'bg-success': etudiant.classe,
+                                    'bg-warning': !etudiant.classe
+                                }">
+                                    {{etudiant.classe?.nom || 'Non assigné'}}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-info" (click)="viewDetails(etudiant, detailsModal)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-warning" (click)="editEtudiant(etudiant)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger" (click)="deleteEtudiant(etudiant)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    Affichage de {{(page-1)*pageSize + 1}} à {{page*pageSize}} sur {{totalItems}} étudiants
+                </div>
+                <ngb-pagination
+                    [collectionSize]="totalItems"
+                    [(page)]="page"
+                    [pageSize]="pageSize"
+                    (pageChange)="loadEtudiants()">
+                </ngb-pagination>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de création/modification -->
+    <ng-template #inscriptionModal let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title">{{selectedEtudiant ? 'Modifier' : 'Nouvel'}} Étudiant</h4>
+            <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="etudiantForm" (ngSubmit)="onSubmit()">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nom*</label>
+                        <input type="text" class="form-control" formControlName="nom">
+                        <div class="text-danger" *ngIf="etudiantForm.get('nom')?.invalid && etudiantForm.get('nom')?.touched">
+                            Le nom est requis (minimum 2 caractères)
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Prénom*</label>
+                        <input type="text" class="form-control" formControlName="prenom">
+                        <div class="text-danger" *ngIf="etudiantForm.get('prenom')?.invalid && etudiantForm.get('prenom')?.touched">
+                            Le prénom est requis (minimum 2 caractères)
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email*</label>
+                        <input type="email" class="form-control" formControlName="email">
+                        <div class="text-danger" *ngIf="etudiantForm.get('email')?.invalid && etudiantForm.get('email')?.touched">
+                            Email invalide
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Téléphone*</label>
+                        <input type="tel" class="form-control" formControlName="telephone">
+                        <div class="text-danger" *ngIf="etudiantForm.get('telephone')?.invalid && etudiantForm.get('telephone')?.touched">
+                            Numéro de téléphone invalide (minimum 9 chiffres)
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Date de Naissance*</label>
+                        <input type="date" class="form-control" formControlName="dateNaissance">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Lieu de Naissance*</label>
+                        <input type="text" class="form-control" formControlName="lieuNaissance">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Adresse*</label>
+                        <input type="text" class="form-control" formControlName="adresse">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nationalité*</label>
+                        <input type="text" class="form-control" formControlName="nationalite">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Genre*</label>
+                        <select class="form-select" formControlName="genre">
+                            <option value="">Sélectionner...</option>
+                            <option value="M">Masculin</option>
+                            <option value="F">Féminin</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Classe*</label>
+                        <select class="form-select" formControlName="classeId">
+                            <option value="">Sélectionner une classe</option>
+                            <option *ngFor="let classe of classes" [value]="classe.id">
+                                {{classe.nom}}
+                            </option>
+                        </select>
+                        <div class="text-danger" *ngIf="etudiantForm.get('classeId')?.invalid && etudiantForm.get('classeId')?.touched">
+                            La classe est requise
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Annuler</button>
+            <button type="button" class="btn btn-primary" 
+                    [disabled]="!isFormValid()" 
+                    (click)="onSubmit()">
+                {{selectedEtudiant ? 'Modifier' : 'Enregistrer'}}
+            </button>
+        </div>
+    </ng-template>
+
+    <!-- Modal de détails -->
+    <ng-template #detailsModal let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title">Détails de l'étudiant</h4>
+            <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+        </div>
+        <div class="modal-body" *ngIf="selectedEtudiant">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Matricule:</strong> {{selectedEtudiant.matricule}}</p>
+                    <p><strong>Nom:</strong> {{selectedEtudiant.nom}}</p>
+                    <p><strong>Prénom:</strong> {{selectedEtudiant.prenom}}</p>
+                    <p><strong>Email:</strong> {{selectedEtudiant.email}}</p>
+                    <p><strong>Téléphone:</strong> {{selectedEtudiant.telephone}}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Date de naissance:</strong> {{selectedEtudiant.dateNaissance | date:'dd/MM/yyyy'}}</p>
+                    <p><strong>Lieu de naissance:</strong> {{selectedEtudiant.lieuNaissance}}</p>
+                    <p><strong>Adresse:</strong> {{selectedEtudiant.adresse}}</p>
+                    <p><strong>Nationalité:</strong> {{selectedEtudiant.nationalite}}</p>
+                    <p><strong>Genre:</strong> {{selectedEtudiant.genre === 'M' ? 'Masculin' : 'Féminin'}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Fermer</button>
+        </div>
+    </ng-template>
+
+    <!-- Modal de succès -->
+    <ng-template #successModal let-modal>
+        <div class="modal-body text-center p-4">
+            <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+            <h4>{{successMessage}}</h4>
+        </div>
+    </ng-template>
+</div> 

@@ -1,0 +1,38 @@
+<div class="workspace-container">
+  <div class="workspace-header">
+    <h1>Tableau de Bord Principal</h1>
+    <p>Gérez efficacement votre établissement avec nos modules spécialisés</p>
+  </div>
+
+  <div class="modules-grid">
+    <div class="module-card" 
+         *ngFor="let module of modules"
+         [style.--module-color]="module.color">
+      <div class="module-content">
+        <div class="module-header">
+          <div class="module-icon">
+            <i [class]="module.icon"></i>
+          </div>
+          <h3>{{module.title}}</h3>
+        </div>
+        
+        <p class="module-description">{{module.description}}</p>
+        
+        <div class="module-features">
+          <h4>Fonctionnalités principales :</h4>
+          <ul>
+            <li *ngFor="let feature of module.features">
+              <i class="fas fa-check-circle"></i>
+              {{feature}}
+            </li>
+          </ul>
+        </div>
+
+        <button class="module-button" (click)="navigateToModule(module.route)">
+          Accéder au module
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

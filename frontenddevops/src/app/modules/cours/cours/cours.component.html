@@ -1,0 +1,373 @@
+<div class="container-fluid px-4">
+    <!-- Header avec titre et statistiques -->
+    <div class="d-flex justify-content-between align-items-center my-4">
+        <h2 class="text-primary mb-0">
+            <i class="fas fa-graduation-cap me-2"></i>Gestion des Cours
+        </h2>
+    </div>
+
+    <!-- Cartes de statistiques -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Total Cours</h6>
+                            <h2 class="mb-0">{{totalItems}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">En Cours</h6>
+                            <h2 class="mb-0">{{totalEnCours}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">À Venir</h6>
+                            <h2 class="mb-0">{{totalAVenir}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-secondary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Terminés</h6>
+                            <h2 class="mb-0">{{totalTermine}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barre d'actions -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" (click)="openModal(coursModal)">
+                            <i class="fas fa-plus-circle me-2"></i>Nouveau Cours
+                        </button>
+                        <button class="btn btn-success" (click)="exportToExcel()">
+                            <i class="fas fa-file-excel me-2"></i>Export Excel
+                        </button>
+                        <button class="btn btn-danger" (click)="exportToPDF()">
+                            <i class="fas fa-file-pdf me-2"></i>Export PDF
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="search-box position-relative">
+                        <input type="text" class="form-control form-control-lg ps-5"
+                            placeholder="Rechercher un cours..." [(ngModel)]="searchTerm" (ngModelChange)="onSearch()">
+                        <i
+                            class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire d'édition/création -->
+    <div class="card mb-4" *ngIf="isEditing">
+        <div class="card-header">
+            <h4>{{selectedCours ? 'Modifier le cours' : 'Nouveau cours'}}</h4>
+        </div>
+        <div class="card-body">
+            <form [formGroup]="coursForm" (ngSubmit)="saveCours()">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Code</label>
+                        <input type="text" class="form-control" formControlName="code">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Nom</label>
+                        <input type="text" class="form-control" formControlName="nom">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Date de début</label>
+                        <input type="date" class="form-control" formControlName="dateDebut">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Date de fin</label>
+                        <input type="date" class="form-control" formControlName="dateFin">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Volume horaire</label>
+                        <input type="number" class="form-control" formControlName="volumeHoraire">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Coefficient</label>
+                        <input type="number" class="form-control" formControlName="coefficient">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Professeur</label>
+                        <select class="form-select" formControlName="professeur">
+                            <option value="">Sélectionner un professeur</option>
+                            <option *ngFor="let prof of professeurs" [value]="prof.id">
+                                {{prof.nom}} {{prof.prenom}}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Classe</label>
+                        <select class="form-select" formControlName="classe">
+                            <option value="">Sélectionner une classe</option>
+                            <option *ngFor="let cl of classes" [value]="cl.id">
+                                {{cl.nom}}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" rows="3" formControlName="description"></textarea>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-secondary" (click)="cancelEdit()">Annuler</button>
+                    <button type="submit" class="btn btn-primary" [disabled]="!coursForm.valid">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des cours -->
+    <div class="card" *ngIf="!isEditing">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Liste des cours</h5>
+            <button class="btn btn-sm btn-outline-primary" (click)="startNewCours()">
+                <i class="fas fa-plus-circle me-1"></i> Nouveau cours
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Nom</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
+                            <th>Volume horaire</th>
+                            <th>Coefficient</th>
+                            <th>Professeur</th>
+                            <th>Classe</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let cours of cours">
+                            <td>{{cours.code}}</td>
+                            <td>{{cours.nom}}</td>
+                            <td>{{cours.dateDebut | date:'dd/MM/yyyy'}}</td>
+                            <td>{{cours.dateFin | date:'dd/MM/yyyy'}}</td>
+                            <td>{{cours.volumeHoraire}}</td>
+                            <td>{{cours.coefficient}}</td>
+                            <td>{{getProfesseurNom(cours.professeur)}}</td>
+                            <td>{{getClasseNom(cours.classe)}}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-outline-info"
+                                        (click)="viewDetails(cours, $event, detailsModalContent)" title="Afficher">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" (click)="editCours(cours, $event)"
+                                        title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" (click)="deleteCours(cours, $event)"
+                                        title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de détails -->
+<ng-template #detailsModalContent let-modal>
+    <div class="modal-header">
+        <h5 class="modal-title">Détails du cours</h5>
+        <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+    </div>
+    <div class="modal-body" *ngIf="selectedCours">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Code:</strong> {{selectedCours.code}}</p>
+                <p><strong>Nom:</strong> {{selectedCours.nom}}</p>
+                <p><strong>Date début:</strong> {{selectedCours.dateDebut | date:'dd/MM/yyyy'}}</p>
+                <p><strong>Date fin:</strong> {{selectedCours.dateFin | date:'dd/MM/yyyy'}}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Volume horaire:</strong> {{selectedCours.volumeHoraire}}</p>
+                <p><strong>Coefficient:</strong> {{selectedCours.coefficient}}</p>
+                <p><strong>Professeur:</strong> {{getProfesseurNom(selectedCours.professeur)}}</p>
+                <p><strong>Classe:</strong> {{getClasseNom(selectedCours.classe)}}</p>
+            </div>
+            <div class="col-12">
+                <p><strong>Description:</strong></p>
+                <p>{{selectedCours.description || 'Aucune description'}}</p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="modal.close()">Fermer</button>
+    </div>
+</ng-template>
+
+<!-- Modal de création/modification -->
+<ng-template #coursModal let-modal>
+    <form [formGroup]="coursForm" (ngSubmit)="creerModifierCours()">
+        <div class="modal-header bg-light">
+            <h4 class="modal-title">
+                <i class="fas" [ngClass]="coursForm.get('id')?.value ? 'fa-edit' : 'fa-plus-circle'"></i>
+                {{coursForm.get('id')?.value ? 'Modifier' : 'Créer'}} un cours
+            </h4>
+            <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+        </div>
+        <div class="modal-body">
+            <div class="row g-3">
+                <!-- Code et Nom -->
+                <div class="col-md-6">
+                    <label class="form-label">Code du cours</label>
+                    <input type="text" class="form-control" formControlName="code"
+                        [ngClass]="{'is-invalid': coursForm.get('code')?.invalid && coursForm.get('code')?.touched}">
+                    <div class="invalid-feedback" *ngIf="coursForm.get('code')?.errors?.['required']">
+                        Le code est requis
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Nom du cours</label>
+                    <input type="text" class="form-control" formControlName="nom"
+                        [ngClass]="{'is-invalid': coursForm.get('nom')?.invalid && coursForm.get('nom')?.touched}">
+                    <div class="invalid-feedback" *ngIf="coursForm.get('nom')?.errors?.['required']">
+                        Le nom est requis
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="col-12">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" rows="3" formControlName="description"
+                        [ngClass]="{'is-invalid': coursForm.get('description')?.invalid && coursForm.get('description')?.touched}">
+            </textarea>
+                    <div class="invalid-feedback" *ngIf="coursForm.get('description')?.errors?.['required']">
+                        La description est requise
+                    </div>
+                </div>
+
+                <!-- Professeur et Classe -->
+                <div class="col-md-6">
+                    <label class="form-label">Professeur</label>
+                    <select class="form-select" formControlName="professeurId"
+                        [ngClass]="{'is-invalid': coursForm.get('professeurId')?.invalid && coursForm.get('professeurId')?.touched}">
+                        <option value="">Sélectionner un professeur</option>
+                        <option *ngFor="let prof of professeurs" [value]="prof.id">
+                            {{prof.nom}} {{prof.prenom}}
+                        </option>
+                    </select>
+                    <div class="invalid-feedback" *ngIf="coursForm.get('professeurId')?.errors?.['required']">
+                        Le professeur est requis
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Classe</label>
+                    <select class="form-select" formControlName="classeId"
+                        [ngClass]="{'is-invalid': coursForm.get('classeId')?.invalid && coursForm.get('classeId')?.touched}">
+                        <option value="">Sélectionner une classe</option>
+                        <option *ngFor="let classe of classes" [value]="classe.id">
+                            {{classe.code}} - {{classe.niveau}}
+                        </option>
+                    </select>
+                    <div class="invalid-feedback" *ngIf="coursForm.get('classeId')?.errors?.['required']">
+                        La classe est requise
+                    </div>
+                </div>
+
+                <!-- Dates -->
+                <div class="col-md-6">
+                    <label class="form-label">Date de début</label>
+                    <input type="date" class="form-control" formControlName="dateDebut"
+                        [ngClass]="{'is-invalid': coursForm.get('dateDebut')?.invalid && coursForm.get('dateDebut')?.touched}">
+                    <div class="invalid-feedback" *ngIf="coursForm.get('dateDebut')?.errors?.['required']">
+                        La date de début est requise
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Date de fin</label>
+                    <input type="date" class="form-control" formControlName="dateFin"
+                        [ngClass]="{'is-invalid': coursForm.get('dateFin')?.invalid && coursForm.get('dateFin')?.touched}">
+                    <div class="invalid-feedback" *ngIf="coursForm.get('dateFin')?.errors?.['required']">
+                        La date de fin est requise
+                    </div>
+                </div>
+
+                <!-- Volume horaire et Coefficient -->
+                <div class="col-md-6">
+                    <label class="form-label">Volume horaire</label>
+                    <input type="number" class="form-control" formControlName="volumeHoraire"
+                        [ngClass]="{'is-invalid': coursForm.get('volumeHoraire')?.invalid && coursForm.get('volumeHoraire')?.touched}">
+                    <div class="invalid-feedback" *ngIf="coursForm.get('volumeHoraire')?.errors?.['required']">
+                        Le volume horaire est requis
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Coefficient</label>
+                    <input type="number" class="form-control" formControlName="coefficient"
+                        [ngClass]="{'is-invalid': coursForm.get('coefficient')?.invalid && coursForm.get('coefficient')?.touched}">
+                    <div class="invalid-feedback" *ngIf="coursForm.get('coefficient')?.errors?.['required']">
+                        Le coefficient est requis
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+                <i class="fas fa-times me-2"></i>Annuler
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="!coursForm.valid">
+                <i class="fas" [ngClass]="coursForm.get('id')?.value ? 'fa-save' : 'fa-plus-circle'"></i>
+                {{coursForm.get('id')?.value ? 'Modifier' : 'Créer'}}
+            </button>
+        </div>
+    </form>
+</ng-template>

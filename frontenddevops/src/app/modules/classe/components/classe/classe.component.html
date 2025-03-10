@@ -1,0 +1,248 @@
+<div class="container-fluid px-4">
+    <!-- Dashboard Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Total Classes</h6>
+                            <h2 class="mb-0">{{totalClasses}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-school"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Total Étudiants</h6>
+                            <h2 class="mb-0">{{totalEtudiants}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Moyenne/Classe</h6>
+                            <h2 class="mb-0">{{moyenneEtudiantsParClasse}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Filières</h6>
+                            <h2 class="mb-0">{{totalFilieres}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barre d'actions -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" (click)="openModal(classeModal)">
+                            <i class="fas fa-plus-circle me-2"></i>Nouvelle Classe
+                        </button>
+                        <button class="btn btn-success" (click)="exporterExcel()">
+                            <i class="fas fa-file-excel me-2"></i>Export Excel
+                        </button>
+                        <button class="btn btn-danger" (click)="exporterPDF()">
+                            <i class="fas fa-file-pdf me-2"></i>Export PDF
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" 
+                               [(ngModel)]="searchTerm" 
+                               (ngModelChange)="rechercherClasses()"
+                               placeholder="Rechercher une classe...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des Classes -->
+    <div class="card">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Liste des Classes</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Nom</th>
+                            <th>Niveau</th>
+                            <th>Filière</th>
+                            <th>Capacité</th>
+                            <th>Année Scolaire</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let classe of classes">
+                            <td>{{classe.code}}</td>
+                            <td>{{classe.nom}}</td>
+                            <td>{{classe.niveau}}</td>
+                            <td>
+                                <span class="badge bg-info">{{classe.filiere}}</span>
+                            </td>
+                            <td>{{classe.capaciteMax}}</td>
+                            <td>{{classe.anneeScolaire}}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-warning" (click)="modifierClasse(classe)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger" (click)="supprimerClasse(classe)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    Affichage de {{(page-1)*pageSize + 1}} à {{page*pageSize}} sur {{totalItems}} classes
+                </div>
+                <ngb-pagination
+                    [collectionSize]="totalItems"
+                    [(page)]="page"
+                    [pageSize]="pageSize"
+                    (pageChange)="chargerClasses()">
+                </ngb-pagination>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals... -->
+    <ng-template #classeModal let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title">{{ selectedClasse ? 'Modifier' : 'Nouvelle' }} Classe</h4>
+            <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="classeForm" (ngSubmit)="onSubmit()">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="code" class="form-label">Code*</label>
+                        <input type="text" id="code" class="form-control" formControlName="code">
+                        <div class="text-danger" *ngIf="classeForm.get('code')?.invalid && classeForm.get('code')?.touched">
+                            Le code est requis (minimum 3 caractères)
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="nom" class="form-label">Nom*</label>
+                        <input type="text" id="nom" class="form-control" formControlName="nom">
+                        <div class="text-danger" *ngIf="classeForm.get('nom')?.invalid && classeForm.get('nom')?.touched">
+                            Le nom est requis (minimum 3 caractères)
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="niveau" class="form-label">Niveau*</label>
+                        <select id="niveau" class="form-select" formControlName="niveau">
+                            <option value="">Sélectionner un niveau</option>
+                            <option value="Licence 1">Licence 1</option>
+                            <option value="Licence 2">Licence 2</option>
+                            <option value="Licence 3">Licence 3</option>
+                            <option value="Master 1">Master 1</option>
+                            <option value="Master 2">Master 2</option>
+                        </select>
+                        <div class="text-danger" *ngIf="classeForm.get('niveau')?.invalid && classeForm.get('niveau')?.touched">
+                            Le niveau est requis
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="filiere" class="form-label">Filière*</label>
+                        <input type="text" id="filiere" class="form-control" formControlName="filiere">
+                        <div class="text-danger" *ngIf="classeForm.get('filiere')?.invalid && classeForm.get('filiere')?.touched">
+                            La filière est requise
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="capaciteMax" class="form-label">Capacité Maximum*</label>
+                        <input type="number" id="capaciteMax" class="form-control" formControlName="capaciteMax" min="1">
+                        <div class="text-danger" *ngIf="classeForm.get('capaciteMax')?.invalid && classeForm.get('capaciteMax')?.touched">
+                            La capacité maximum est requise
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="anneeScolaire" class="form-label">Année Scolaire*</label>
+                        <input type="text" id="anneeScolaire" class="form-control" formControlName="anneeScolaire" 
+                               placeholder="2023-2024">
+                        <div class="text-danger" *ngIf="classeForm.get('anneeScolaire')?.invalid && classeForm.get('anneeScolaire')?.touched">
+                            L'année scolaire est requise
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="responsableId" class="form-label">Responsable</label>
+                        <select id="responsableId" class="form-select" formControlName="responsableId">
+                            <option value="">Sélectionner un responsable</option>
+                            <!-- Add options dynamically from your professors list -->
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea id="description" class="form-control" formControlName="description" 
+                                  rows="3"></textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Annuler</button>
+            <button type="button" class="btn btn-primary" [disabled]="!classeForm.valid" (click)="onSubmit()">
+                {{ selectedClasse ? 'Modifier' : 'Créer' }}
+            </button>
+        </div>
+    </ng-template>
+</div> 

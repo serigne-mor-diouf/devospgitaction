@@ -1,0 +1,236 @@
+<div class="dashboard-container">
+    <!-- Ajout du bouton retour -->
+    <div class="back-to-workspace">
+        <button class="back-button" routerLink="/workspace">
+            <i class="fas fa-arrow-left"></i>
+            Retour à l'espace de travail
+        </button>
+    </div>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-school"></i>
+            <h3>Gestion des Classes</h3>
+        </div>
+        <div class="sidebar-menu">
+            <ul>
+                <li *ngFor="let item of menuItems" [routerLink]="item.route" routerLinkActive="active">
+                    <i [class]="item.icon"></i>
+                    <span>{{item.label}}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="content-header">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" 
+                       [(ngModel)]="searchTerm" 
+                       (keyup)="onSearch()" 
+                       placeholder="Rechercher par code, nom ou filière..."
+                       class="form-control search-input">
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary action-btn" (click)="openNewClasseModal(newClasseModal)">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    <span>Nouvelle Classe</span>
+                </button>
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary action-btn" (click)="exportData('excel')">
+                        <i class="fas fa-file-excel me-2 text-success"></i>
+                        <span>Excel</span>
+                    </button>
+                    <button class="btn btn-outline-secondary action-btn" (click)="exportData('pdf')">
+                        <i class="fas fa-file-pdf me-2 text-danger"></i>
+                        <span>PDF</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <div class="charts-column">
+                <div class="chart-card niveau-chart">
+                    <div class="chart-header">
+                        <h3>Répartition par Niveau</h3>
+                        <button class="btn btn-sm btn-light" (click)="refreshChart('niveau')">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <canvas #niveauChart></canvas>
+                </div>
+
+                <div class="chart-card effectifs-chart">
+                    <div class="chart-header">
+                        <h3>Évolution des Effectifs</h3>
+                        <button class="btn btn-sm btn-light" (click)="refreshChart('effectifs')">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <canvas #effectifsChart></canvas>
+                </div>
+            </div>
+
+            <div class="stats-column">
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #4CAF50;">
+                            <i class="fas fa-school"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4>{{totalClasses}}</h4>
+                            <p class="stat-label">Classes Actives</p>
+                            <small class="stat-detail">{{totalClasses}} classes en cours</small>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #2196F3;">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4>{{totalEtudiants}}</h4>
+                            <p class="stat-label">Étudiants Inscrits</p>
+                            <small class="stat-detail">Année en cours</small>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #FF9800;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4>{{moyenneEtudiantsParClasse}}</h4>
+                            <p class="stat-label">Moyenne/Classe</p>
+                            <small class="stat-detail">Étudiants par classe</small>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #9C27B0;">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4>{{totalFilieres}}</h4>
+                            <p class="stat-label">Filières</p>
+                            <small class="stat-detail">Filières actives</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="section-header">
+                <h3>Liste des Classes</h3>
+                <div class="filters">
+                    <select class="form-select" [(ngModel)]="selectedNiveau" (change)="filterClasses()">
+                        <option value="">Tous les niveaux</option>
+                        <option *ngFor="let niveau of niveaux">{{niveau}}</option>
+                    </select>
+                    <select class="form-select" [(ngModel)]="selectedFiliere" (change)="filterClasses()">
+                        <option value="">Toutes les filières</option>
+                        <option *ngFor="let filiere of filieres">{{filiere}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Nom</th>
+                            <th>Niveau</th>
+                            <th>Filière</th>
+                            <th>Capacité</th>
+                            <th>Responsable</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let classe of classes">
+                            <td>{{classe.code}}</td>
+                            <td>{{classe.nom}}</td>
+                            <td>{{classe.niveau}}</td>
+                            <td>{{classe.filiere}}</td>
+                            <td>{{classe.capaciteMax}}</td>
+                            <td>{{classe.responsable?.nom}}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-info" (click)="viewClasse(classe)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-warning" (click)="editClasse(classe)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" (click)="deleteClasse(classe)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="page-info">
+                    Affichage {{(page-1)*pageSize + 1}} à {{page*pageSize}} sur {{totalItems}} classes
+                </div>
+                <ngb-pagination
+                    [collectionSize]="totalItems"
+                    [(page)]="page"
+                    [pageSize]="pageSize"
+                    (pageChange)="onPageChange()">
+                </ngb-pagination>
+            </div>
+        </div>
+
+        <router-outlet></router-outlet>
+    </div>
+</div>
+
+<!-- Modal Nouvelle Classe -->
+<ng-template #newClasseModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">Nouvelle Classe</h4>
+        <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+    </div>
+    <div class="modal-body">
+        <form [formGroup]="classeForm">
+            <div class="mb-3">
+                <label class="form-label">Code</label>
+                <input type="text" class="form-control" formControlName="code">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-control" formControlName="nom">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Niveau</label>
+                <select class="form-select" formControlName="niveau">
+                    <option value="">Sélectionner un niveau</option>
+                    <option *ngFor="let niveau of niveaux">{{niveau}}</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Filière</label>
+                <select class="form-select" formControlName="filiere">
+                    <option value="">Sélectionner une filière</option>
+                    <option *ngFor="let filiere of filieres">{{filiere}}</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Capacité Maximum</label>
+                <input type="number" class="form-control" formControlName="capaciteMax">
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="saveClasse()">Enregistrer</button>
+    </div>
+</ng-template> 

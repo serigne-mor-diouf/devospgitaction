@@ -1,0 +1,266 @@
+<div class="container-fluid px-4">
+    <!-- Header avec statistiques -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Total Inscriptions</h6>
+                            <h2 class="mb-0">{{totalInscriptions}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-file-signature"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Validées</h6>
+                            <h2 class="mb-0">{{totalValidees}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">En Attente</h6>
+                            <h2 class="mb-0">{{totalEnAttente}}</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2">Total Frais</h6>
+                            <h2 class="mb-0">{{totalFrais | number}} FCFA</h2>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barre d'actions -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" (click)="openModal(inscriptionModal)">
+                            <i class="fas fa-plus-circle me-2"></i>Nouvelle Inscription
+                        </button>
+                        <button class="btn btn-success" (click)="exportToExcel()">
+                            <i class="fas fa-file-excel me-2"></i>Export Excel
+                        </button>
+                        <button class="btn btn-danger" (click)="exportToPDF()">
+                            <i class="fas fa-file-pdf me-2"></i>Export PDF
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <input type="text" class="form-control" 
+                               [(ngModel)]="searchTerm" 
+                               (ngModelChange)="onSearch()"
+                               placeholder="Rechercher une inscription...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des inscriptions -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Liste des Inscriptions</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Étudiant</th>
+                            <th>Année Académique</th>
+                            <th>Statut</th>
+                            <th>Frais Inscription</th>
+                            <th>Frais Scolarité</th>
+                            <th>Montant Versé</th>
+                            <th>Solde</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let inscription of inscriptions">
+                            <td>{{inscription.dateInscription | date:'dd/MM/yyyy'}}</td>
+                            <td>{{inscription.etudiant?.nom}} {{inscription.etudiant?.prenom}}</td>
+                            <td>{{inscription.anneeAcademique?.libelle}}</td>
+                            <td>
+                                <span class="badge" [ngClass]="{
+                                    'bg-success': inscription.statut === 'VALIDEE',
+                                    'bg-warning': inscription.statut === 'EN_ATTENTE',
+                                    'bg-danger': inscription.statut === 'ANNULEE'
+                                }">
+                                    {{inscription.statut}}
+                                </span>
+                            </td>
+                            <td>{{inscription.fraisInscription | number}} FCFA</td>
+                            <td>{{inscription.fraisScolarite | number}} FCFA</td>
+                            <td>{{inscription.montantVerse | number}} FCFA</td>
+                            <td>
+                                <span [ngClass]="{
+                                    'text-success': getSolde(inscription) <= 0,
+                                    'text-danger': getSolde(inscription) > 0
+                                }">
+                                    {{getSolde(inscription) | number}} FCFA
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-info" (click)="viewDetails(inscription, detailsModal)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-warning" (click)="editInscription(inscription)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger" (click)="deleteInscription(inscription)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    Affichage de {{(page-1)*pageSize + 1}} à {{page*pageSize}} sur {{totalItems}} inscriptions
+                </div>
+                <ngb-pagination
+                    [collectionSize]="totalItems"
+                    [(page)]="page"
+                    [pageSize]="pageSize"
+                    (pageChange)="loadInscriptions()">
+                </ngb-pagination>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de création/modification -->
+    <ng-template #inscriptionModal let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title">{{selectedInscription ? 'Modifier' : 'Nouvelle'}} Inscription</h4>
+            <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="inscriptionForm" (ngSubmit)="onSubmit()">
+                <div class="form-group">
+                    <label for="etudiantId">Étudiant</label>
+                    <select class="form-control" id="etudiantId" formControlName="etudiantId">
+                        <option value="">Sélectionner un étudiant</option>
+                        <option *ngFor="let etudiant of etudiants" [value]="etudiant.id">
+                            {{etudiant.nom}} {{etudiant.prenom}}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dateInscription">Date d'inscription</label>
+                    <input type="date" class="form-control" id="dateInscription" formControlName="dateInscription">
+                </div>
+
+                <div class="form-group">
+                    <label for="statut">Statut</label>
+                    <select class="form-control" id="statut" formControlName="statut">
+                        <option value="">Sélectionner un statut</option>
+                        <option value="EN_COURS">En cours</option>
+                        <option value="VALIDEE">Validée</option>
+                        <option value="ANNULEE">Annulée</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="fraisInscription">Frais d'inscription</label>
+                    <input type="number" class="form-control" id="fraisInscription" formControlName="fraisInscription">
+                </div>
+
+                <div class="form-group">
+                    <label for="fraisScolarite">Frais de scolarité</label>
+                    <input type="number" class="form-control" id="fraisScolarite" formControlName="fraisScolarite">
+                </div>
+
+                <div class="form-group">
+                    <label for="montantVerse">Montant versé</label>
+                    <input type="number" class="form-control" id="montantVerse" formControlName="montantVerse">
+                </div>
+
+                <div class="form-group">
+                    <label for="observation">Observation</label>
+                    <textarea class="form-control" id="observation" formControlName="observation"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Annuler</button>
+            <button type="button" class="btn btn-primary" (click)="onSubmit()">
+                {{selectedInscription ? 'Modifier' : 'Créer'}}
+            </button>
+        </div>
+    </ng-template>
+
+    <!-- Modal de détails -->
+    <ng-template #detailsModal let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title">Détails de l'inscription</h4>
+            <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+        </div>
+        <div class="modal-body" *ngIf="selectedInscription">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Étudiant:</strong> {{selectedInscription.etudiant?.nom}} {{selectedInscription.etudiant?.prenom}}</p>
+                    <p><strong>Année Académique:</strong> {{selectedInscription.anneeAcademique?.libelle}}</p>
+                    <p><strong>Date d'inscription:</strong> {{selectedInscription.dateInscription | date:'dd/MM/yyyy'}}</p>
+                    <p><strong>Statut:</strong> {{selectedInscription.statut}}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Frais d'inscription:</strong> {{selectedInscription.fraisInscription | number}} FCFA</p>
+                    <p><strong>Frais de scolarité:</strong> {{selectedInscription.fraisScolarite | number}} FCFA</p>
+                    <p><strong>Montant versé:</strong> {{selectedInscription.montantVerse | number}} FCFA</p>
+                    <p><strong>Solde:</strong> {{getSolde(selectedInscription) | number}} FCFA</p>
+                </div>
+                <div class="col-12">
+                    <p><strong>Observation:</strong></p>
+                    <p>{{selectedInscription.observation || 'Aucune observation'}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Fermer</button>
+        </div>
+    </ng-template>
+</div> 

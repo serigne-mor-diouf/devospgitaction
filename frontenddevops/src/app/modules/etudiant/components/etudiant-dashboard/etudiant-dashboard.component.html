@@ -1,0 +1,234 @@
+<div class="d-flex">
+  <!-- Sidebar -->
+  <div class="sidebar bg-dark text-white" style="width: 250px; min-height: 100vh;">
+    <div class="p-3">
+      <h5 class="text-white">Gestion Étudiants</h5>
+      <hr>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link text-white" [class.active]="activeTab === 'etudiants'" (click)="onTabChange('etudiants')">
+            <i class="fas fa-users me-2"></i>Étudiants
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" [class.active]="activeTab === 'inscriptions'" (click)="onTabChange('inscriptions')">
+            <i class="fas fa-file-signature me-2"></i>Inscriptions
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" [class.active]="activeTab === 'notes'" (click)="onTabChange('notes')">
+            <i class="fas fa-graduation-cap me-2"></i>Notes
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content flex-grow-1 p-4">
+    <!-- En-tête avec statistiques -->
+    <div class="row g-4 mb-4">
+      <div class="col-xl-3 col-md-6">
+        <div class="card bg-primary text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="text-uppercase mb-2">Total Étudiants</h6>
+                <h2 class="mb-0">{{stats.totalEtudiants}}</h2>
+              </div>
+              <div class="fs-1">
+                <i class="fas fa-users"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card bg-success text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="text-uppercase mb-2">Inscrits</h6>
+                <h2 class="mb-0">{{stats.totalInscrits}}</h2>
+              </div>
+              <div class="fs-1">
+                <i class="fas fa-user-check"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card bg-info text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="text-uppercase mb-2">Notes Saisies</h6>
+                <h2 class="mb-0">{{stats.totalNotes}}</h2>
+              </div>
+              <div class="fs-1">
+                <i class="fas fa-graduation-cap"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card bg-warning text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="text-uppercase mb-2">Moyenne Générale</h6>
+                <h2 class="mb-0">{{stats.moyenneGenerale | number:'1.2-2'}}</h2>
+              </div>
+              <div class="fs-1">
+                <i class="fas fa-chart-line"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barre d'actions -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <div class="btn-group">
+              <button class="btn" [class.btn-primary]="activeTab === 'etudiants'" 
+                      (click)="activeTab = 'etudiants'; loadActiveTabData()">
+                <i class="fas fa-users me-2"></i>Étudiants
+              </button>
+              <button class="btn" [class.btn-primary]="activeTab === 'inscriptions'" 
+                      (click)="activeTab = 'inscriptions'; loadActiveTabData()">
+                <i class="fas fa-file-signature me-2"></i>Inscriptions
+              </button>
+              <button class="btn" [class.btn-primary]="activeTab === 'notes'" 
+                      (click)="activeTab = 'notes'; loadActiveTabData()">
+                <i class="fas fa-graduation-cap me-2"></i>Notes
+              </button>
+            </div>
+            <div class="btn-group ms-3">
+              <button class="btn btn-success" (click)="exportData('excel')">
+                <i class="fas fa-file-excel me-2"></i>Excel
+              </button>
+              <button class="btn btn-danger" (click)="exportData('pdf')">
+                <i class="fas fa-file-pdf me-2"></i>PDF
+              </button>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="search-box">
+              <input type="text" class="form-control" 
+                     [(ngModel)]="searchTerm" 
+                     (ngModelChange)="onSearch()"
+                     [placeholder]="'Rechercher un ' + activeTab.slice(0, -1) + '...'">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ajouter dans le header du dashboard -->
+    <div class="notifications position-relative me-3">
+      <i class="fas fa-bell fs-5" (click)="toggleNotifications()"></i>
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        {{notifications.length}}
+      </span>
+      
+      <!-- Dropdown des notifications -->
+      <div class="notifications-dropdown" *ngIf="showNotifications">
+        <div class="card">
+          <div class="card-header">
+            <h6 class="mb-0">Notifications</h6>
+          </div>
+          <div class="card-body">
+            <div class="notification-item" *ngFor="let notif of notifications">
+              <p class="mb-1">{{notif.message}}</p>
+              <small class="text-muted">{{notif.date | date:'short'}}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{{activeTab === 'etudiants' ? 'Liste des étudiants' : 
+                          activeTab === 'inscriptions' ? 'Liste des inscriptions' : 
+                          'Liste des notes'}}</h5>
+        <button class="btn btn-primary" (click)="openModal(activeTab === 'etudiants' ? etudiantModal : 
+                                                         activeTab === 'inscriptions' ? inscriptionModal : 
+                                                         noteModal)">
+          <i class="fas fa-plus-circle me-2"></i>Nouveau
+        </button>
+      </div>
+      <div class="card-body">
+        <div [ngSwitch]="activeTab">
+          <ng-container *ngSwitchCase="'etudiants'">
+            <app-etudiant 
+              [etudiants]="etudiants"
+              (edit)="handleEdit($event, 'etudiant')"
+              (delete)="handleDelete($event, 'etudiant')"
+              (view)="handleView($event, 'etudiant')">
+            </app-etudiant>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'inscriptions'">
+            <app-inscription 
+              [inscriptions]="inscriptions"
+              (edit)="handleEdit($event, 'inscription')"
+              (delete)="handleDelete($event, 'inscription')"
+              (view)="handleView($event, 'inscription')">
+            </app-inscription>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'notes'">
+            <app-note 
+              [notes]="notes"
+              (edit)="handleEdit($event, 'note')"
+              (delete)="handleDelete($event, 'note')"
+              (view)="handleView($event, 'note')">
+            </app-note>
+          </ng-container>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <div>
+            Affichage de {{(page-1)*pageSize + 1}} à {{page*pageSize}} sur {{totalItems}} entrées
+          </div>
+          <ngb-pagination
+            [collectionSize]="totalItems"
+            [(page)]="page"
+            [pageSize]="pageSize"
+            (pageChange)="onPageChange()">
+          </ngb-pagination>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <ng-template #etudiantModal let-modal>
+      <!-- Template du modal étudiant -->
+    </ng-template>
+
+    <ng-template #inscriptionModal let-modal>
+      <!-- Template du modal inscription -->
+    </ng-template>
+
+    <ng-template #noteModal let-modal>
+      <!-- Template du modal note -->
+    </ng-template>
+
+    <!-- Ajout du bouton retour -->
+    <div class="back-to-workspace">
+        <button class="back-button" routerLink="/workspace">
+            <i class="fas fa-arrow-left"></i>
+            Retour à l'espace de travail
+        </button>
+    </div>
+  </div>
+</div> 

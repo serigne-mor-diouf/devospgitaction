@@ -1,0 +1,32 @@
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  margin-bottom: 1.5rem;
+  
+  .card-header {
+    background-color: #fff;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+  }
+}
+
+.badge {
+  padding: 0.5em 1em;
+}
+
+.breadcrumb {
+  font-size: 0.9rem;
+  
+  a {
+    color: #0d6efd;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.btn-group {
+  .btn {
+    margin-left: 0.5rem;
+  }
+} 

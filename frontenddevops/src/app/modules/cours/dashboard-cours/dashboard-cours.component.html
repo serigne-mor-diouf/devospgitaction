@@ -1,0 +1,186 @@
+<div class="dashboard-container">
+  <!-- Sidebar Verticale -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h3><i class="fas fa-graduation-cap me-2"></i>Gestion des Cours</h3>
+    </div>
+    <div class="sidebar-menu">
+      <a class="menu-item" [class.active]="currentView === 'dashboard'" (click)="switchView('dashboard')">
+        <i class="fas fa-chart-pie"></i>
+        <span>Dashboard</span>
+      </a>
+      <a class="menu-item" [class.active]="currentView === 'liste'" (click)="switchView('liste')">
+        <i class="fas fa-list"></i>
+        <span>Liste des cours</span>
+      </a>
+      <a class="menu-item" [class.active]="currentView === 'nouveau'" (click)="switchView('nouveau')">
+        <i class="fas fa-plus-circle"></i>
+        <span>Nouveau cours</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Contenu Principal -->
+  <div class="main-content">
+    <!-- En-tête avec fil d'Ariane -->
+    <div class="content-header">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a (click)="switchView('dashboard')">Dashboard</a></li>
+          <li class="breadcrumb-item" *ngIf="currentView !== 'dashboard'">
+            {{currentView === 'liste' ? 'Liste des cours' : 
+              currentView === 'nouveau' ? 'Nouveau cours' : 
+              currentView === 'detail' ? 'Détail du cours' : ''}}
+          </li>
+        </ol>
+      </nav>
+    </div>
+
+    <!-- Vue Dashboard -->
+    <div *ngIf="currentView === 'dashboard'" class="fade-in">
+      <!-- Cartes statistiques -->
+      <div class="row g-4 mb-4">
+        <!-- Total Cours -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-uppercase mb-2">Total Cours</h6>
+                  <h2 class="mb-0">{{totalCours}}</h2>
+                </div>
+                <div class="fs-1">
+                  <i class="fas fa-book-open"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+    <!-- Cours en cours -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-success text-white h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-uppercase mb-2">En Cours</h6>
+              <h2 class="mb-0">{{coursEnCours}}</h2>
+            </div>
+            <div class="fs-1">
+              <i class="fas fa-clock"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cours à venir -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-info text-white h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-uppercase mb-2">À Venir</h6>
+              <h2 class="mb-0">{{coursAVenir}}</h2>
+            </div>
+            <div class="fs-1">
+              <i class="fas fa-calendar"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cours terminés -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card bg-secondary text-white h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-uppercase mb-2">Terminés</h6>
+              <h2 class="mb-0">{{coursTermines}}</h2>
+            </div>
+            <div class="fs-1">
+              <i class="fas fa-check-circle"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cours récents -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-white">
+          <h5 class="mb-0">Cours Récents</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Nom du cours</th>
+                  <th>Date de début</th>
+                  <th>Date de fin</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cours of recentCours">
+                  <td>{{cours.nom}}</td>
+                  <td>{{cours.dateDebut | date:'dd/MM/yyyy'}}</td>
+                  <td>{{cours.dateFin | date:'dd/MM/yyyy'}}</td>
+                  <td>
+                    <span class="badge" [ngClass]="{
+                      'bg-success': isEnCours(cours),
+                      'bg-info': isAVenir(cours),
+                      'bg-secondary': isTermine(cours)
+                    }">
+                      {{getStatus(cours)}}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-primary me-2" [routerLink]="['/cours', cours.id]">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Vue Liste -->
+<div *ngIf="currentView === 'liste'" class="fade-in">
+  <div class="card">
+    <div class="card-body">
+      <app-cours (coursSelected)="onCoursSelected($event)"></app-cours>
+    </div>
+  </div>
+</div>
+
+<!-- Vue Nouveau Cours -->
+<div *ngIf="currentView === 'nouveau'" class="fade-in">
+  <div class="card">
+    <div class="card-body">
+      <app-cours [isNewCours]="true"></app-cours>
+    </div>
+  </div>
+</div>
+
+<!-- Vue Détail -->
+<div *ngIf="currentView === 'detail' && selectedCours" class="fade-in">
+  <div class="card">
+    <div class="card-body">
+      <app-cours-detail [cours]="selectedCours"></app-cours-detail>
+    </div>
+  </div>
+</div>
+</div> 
