@@ -252,17 +252,18 @@ jobs:
           # Créer un Dockerfile simple si nécessaire
           if [ ! -f "frontenddevops/Dockerfile" ]; then
             echo "Creating Dockerfile for frontend"
-            echo "FROM nginx:alpine" > frontenddevops/Dockerfile
-            echo "COPY dist/ /usr/share/nginx/html" >> frontenddevops/Dockerfile
-            echo "EXPOSE 80" >> frontenddevops/Dockerfile
-            echo "CMD [\"nginx\", \"-g\", \"daemon off;\"]" >> frontenddevops/Dockerfile
+            cat > frontenddevops/Dockerfile << 'FRONTENDEOF'
+            FROM nginx:alpine
+            COPY dist/ /usr/share/nginx/html
+            EXPOSE 80
+            CMD ["nginx", "-g", "daemon off;"]
+            FRONTENDEOF
           fi
           
-          # Créer un répertoire dist si nécessaire
+          # S'assurer que le répertoire dist existe
           if [ ! -d "frontenddevops/dist" ]; then
-            echo "Creating placeholder dist directory"
-            mkdir -p frontenddevops/dist
-            echo "<html><body><h1>Placeholder</h1></body></html>" > frontenddevops/dist/index.html
+            mkdir -p frontenddevops/dist/frontenddevops
+            echo "<html><body><h1>Placeholder</h1></body></html>" > frontenddevops/dist/frontenddevops/index.html
           fi
           
           echo "Building and pushing frontend Docker image"
@@ -288,15 +289,15 @@ jobs:
             echo "Building $service on port $PORT"
             
             # Créer un Dockerfile dynamique
-            cat > $service/Dockerfile <<EOF
+            cat > $service/Dockerfile << 'BACKENDEOF'
             FROM openjdk:17-jdk-slim
-            ARG PORT=$PORT
-            ENV SERVER_PORT=\${PORT}
+            ARG PORT=8080
+            ENV SERVER_PORT=${PORT}
             WORKDIR /app
             COPY target/*.jar app.jar
-            EXPOSE \${PORT}
+            EXPOSE ${PORT}
             ENTRYPOINT ["java", "-jar", "app.jar"]
-            EOF
+            BACKENDEOF
             
             # Vérifier si le JAR existe
             if [ ! -f "$service/target/*.jar" ]; then
