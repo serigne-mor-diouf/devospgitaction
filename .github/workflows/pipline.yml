@@ -253,11 +253,11 @@ jobs:
           if [ ! -f "frontenddevops/Dockerfile" ]; then
             echo "Creating Dockerfile for frontend"
             cat > frontenddevops/Dockerfile << 'FRONTENDEOF'
-            FROM nginx:alpine
-            COPY dist/ /usr/share/nginx/html
-            EXPOSE 80
-            CMD ["nginx", "-g", "daemon off;"]
-            FRONTENDEOF
+FROM nginx:alpine
+COPY dist/ /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+FRONTENDEOF
           fi
           
           # S'assurer que le répertoire dist existe
@@ -290,14 +290,14 @@ jobs:
             
             # Créer un Dockerfile dynamique
             cat > $service/Dockerfile << 'BACKENDEOF'
-            FROM openjdk:17-jdk-slim
-            ARG PORT=8080
-            ENV SERVER_PORT=${PORT}
-            WORKDIR /app
-            COPY target/*.jar app.jar
-            EXPOSE ${PORT}
-            ENTRYPOINT ["java", "-jar", "app.jar"]
-            BACKENDEOF
+FROM openjdk:17-jdk-slim
+ARG PORT=8080
+ENV SERVER_PORT=${PORT}
+WORKDIR /app
+COPY target/*.jar app.jar
+EXPOSE ${PORT}
+ENTRYPOINT ["java", "-jar", "app.jar"]
+BACKENDEOF
             
             # Vérifier si le JAR existe
             if [ ! -f "$service/target/*.jar" ]; then
