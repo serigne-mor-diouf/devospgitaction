@@ -252,12 +252,12 @@ jobs:
           # Créer un Dockerfile simple si nécessaire
           if [ ! -f "frontenddevops/Dockerfile" ]; then
             echo "Creating Dockerfile for frontend"
-            cat > frontenddevops/Dockerfile << 'FRONTENDEOF'
+            cat > frontenddevops/Dockerfile <<EOF
 FROM nginx:alpine
 COPY dist/ /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
-FRONTENDEOF
+EOF
           fi
           
           # S'assurer que le répertoire dist existe
@@ -289,26 +289,26 @@ FRONTENDEOF
             echo "Building $service on port $PORT"
             
             # Créer un Dockerfile dynamique
-            cat > $service/Dockerfile << 'BACKENDEOF'
+            cat > "$service/Dockerfile" <<EOF
 FROM openjdk:17-jdk-slim
-ARG PORT=8080
-ENV SERVER_PORT=${PORT}
+ARG PORT=$PORT
+ENV SERVER_PORT=\$PORT
 WORKDIR /app
 COPY target/*.jar app.jar
-EXPOSE ${PORT}
+EXPOSE \$PORT
 ENTRYPOINT ["java", "-jar", "app.jar"]
-BACKENDEOF
+EOF
             
             # Vérifier si le JAR existe
             if [ ! -f "$service/target/*.jar" ]; then
               echo "Creating placeholder JAR for $service"
-              mkdir -p $service/target
-              touch $service/target/$SERVICE_NAME.jar
+              mkdir -p "$service/target"
+              touch "$service/target/$SERVICE_NAME.jar"
             fi
             
             # Build et push
-            docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest $service
-            docker push ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest
+            docker build -t "${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest" "$service"
+            docker push "${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest"
           fi
         done
       timeout-minutes: 10
