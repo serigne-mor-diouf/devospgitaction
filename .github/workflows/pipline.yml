@@ -343,6 +343,20 @@ jobs:
       url: https://devops-ci-cd.onrender.com
     
     steps:
+    - name: Verify Render Credentials
+      run: |
+        if [ -z "${{ secrets.RENDER_SERVICE_ID }}" ]; then
+          echo "Error: RENDER_SERVICE_ID is not set"
+          exit 1
+        fi
+        if [ -z "${{ secrets.RENDER_API_KEY }}" ]; then
+          echo "Error: RENDER_API_KEY is not set"
+          exit 1
+        fi
+        echo "Render credentials verified"
+        echo "Service ID: ${{ secrets.RENDER_SERVICE_ID }}"
+        echo "API Key length: ${#RENDER_API_KEY}"
+
     - name: Deploy to Production
       uses: JorgeLNJunior/render-deploy@v1.4.3
       with:
@@ -351,6 +365,18 @@ jobs:
         wait_deploy: true
         github_token: ${{ secrets.GITHUB_TOKEN }}
         deployment_environment: production
+        clear_cache: true  # Ajout pour forcer un déploiement propre
+
+    - name: Deploy to Production (Alternative)
+      if: failure()  # S'exécute si la première tentative échoue
+      run: |
+        DEPLOY_HOOK_URL="https://api.render.com/deploy/${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}"
+        echo "Triggering deploy using webhook..."
+        curl -X POST $DEPLOY_HOOK_URL
+        
+        # Attendre que le déploiement soit terminé
+        echo "Waiting for deployment to complete..."
+        sleep 60  # Attendre 1 minute pour le démarrage du déploiement
 
   monitoring:
     name: Application Monitoring
