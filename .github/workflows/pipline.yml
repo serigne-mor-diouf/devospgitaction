@@ -30,77 +30,72 @@ jobs:
     - name: Initialize Maven Wrapper and Build & Test Microservice Cours
       run: |
         if [ ! -d "microservice-gestion-cours" ]; then
-          echo "microservice-gestion-cours directory not found"
-          exit 1
-        fi
-        cd microservice-gestion-cours
-        # Générer le wrapper Maven s'il n'existe pas
-        if [ ! -f "mvnw" ]; then
+          echo "Creating microservice-gestion-cours directory"
+          mkdir microservice-gestion-cours
+          cd microservice-gestion-cours
           mvn -N wrapper:wrapper
+        else
+          cd microservice-gestion-cours
         fi
         chmod +x mvnw
-        ./mvnw clean install -DskipTests
-        ./mvnw test || echo "Tests may have failed but continuing"
+        ./mvnw clean install
+        ./mvnw test
 
-    - name: Initialize Maven Wrapper and Build & Test Microservice Prof
+    - name: Initialize Maven Wrapper and Build & Test Microservice Professeur
       run: |
-        if [ ! -d "microservice-gestion-prof" ]; then
-          echo "microservice-gestion-prof directory not found"
-          exit 1
-        fi
-        cd microservice-gestion-prof
-        # Générer le wrapper Maven s'il n'existe pas
-        if [ ! -f "mvnw" ]; then
+        if [ ! -d "microservice-gestion-professeur" ]; then
+          echo "Creating microservice-gestion-professeur directory"
+          mkdir microservice-gestion-professeur
+          cd microservice-gestion-professeur
           mvn -N wrapper:wrapper
+        else
+          cd microservice-gestion-professeur
         fi
         chmod +x mvnw
-        ./mvnw clean install -DskipTests
-        ./mvnw test || echo "Tests may have failed but continuing"
+        ./mvnw clean install
+        ./mvnw test
 
     - name: Initialize Maven Wrapper and Build & Test Microservice Etudiant
       run: |
         if [ ! -d "microservice-gestion-etudiant" ]; then
-          echo "microservice-gestion-etudiant directory not found"
-          exit 1
-        fi
-        cd microservice-gestion-etudiant
-        # Générer le wrapper Maven s'il n'existe pas
-        if [ ! -f "mvnw" ]; then
+          echo "Creating microservice-gestion-etudiant directory"
+          mkdir microservice-gestion-etudiant
+          cd microservice-gestion-etudiant
           mvn -N wrapper:wrapper
+        else
+          cd microservice-gestion-etudiant
         fi
         chmod +x mvnw
-        ./mvnw clean install -DskipTests
-        ./mvnw test || echo "Tests may have failed but continuing"
+        ./mvnw clean install
+        ./mvnw test
 
     - name: Initialize Maven Wrapper and Build & Test Microservice Classe
       run: |
         if [ ! -d "microservice-gestion-classe" ]; then
-          echo "microservice-gestion-classe directory not found"
-          exit 1
-        fi
-        cd microservice-gestion-classe
-        # Générer le wrapper Maven s'il n'existe pas
-        if [ ! -f "mvnw" ]; then
+          echo "Creating microservice-gestion-classe directory"
+          mkdir microservice-gestion-classe
+          cd microservice-gestion-classe
           mvn -N wrapper:wrapper
+        else
+          cd microservice-gestion-classe
         fi
         chmod +x mvnw
-        ./mvnw clean install -DskipTests
-        ./mvnw test || echo "Tests may have failed but continuing"
+        ./mvnw clean install
+        ./mvnw test
 
     - name: Initialize Maven Wrapper and Build & Test Microservice Emploi du Temps
       run: |
-        if [ ! -d "microservice-gestion-emploi-du-temp" ]; then
-          echo "microservice-gestion-emploi-du-temp directory not found"
-          exit 1
-        fi
-        cd microservice-gestion-emploi-du-temp
-        # Générer le wrapper Maven s'il n'existe pas
-        if [ ! -f "mvnw" ]; then
+        if [ ! -d "microservice-gestion-emploi-temps" ]; then
+          echo "Creating microservice-gestion-emploi-temps directory"
+          mkdir microservice-gestion-emploi-temps
+          cd microservice-gestion-emploi-temps
           mvn -N wrapper:wrapper
+        else
+          cd microservice-gestion-emploi-temps
         fi
         chmod +x mvnw
-        ./mvnw clean install -DskipTests
-        ./mvnw test || echo "Tests may have failed but continuing"
+        ./mvnw clean install
+        ./mvnw test
         
     # Configuration Node.js pour Angular    
     - name: Set up Node.js
@@ -113,37 +108,25 @@ jobs:
     # Installation Frontend (Angular)
     - name: Install Frontend Dependencies
       run: |
-        if [ ! -d "frontenddevops" ]; then
-          echo "frontenddevops directory not found"
-          exit 1
-        fi
         cd frontenddevops
         npm install -g @angular/cli
-        npm ci || npm install
+        npm ci
         
     # Tests Frontend (Angular)
     - name: Run Frontend Tests
       run: |
         cd frontenddevops
-        npm test -- --watch=false --browsers=ChromeHeadless || echo "Frontend tests may have failed but continuing"
+        npm test -- --watch=false --browsers=ChromeHeadless
         
     # Analyse de qualité
     - name: Code Quality Analysis
       run: |
         cd frontenddevops
-        npm run lint || echo "Linting may have failed but continuing"
-        
+        npm run lint || true
         for service in microservice-gestion-*; do
-          if [ -d "$service" ]; then
-            cd $service
-            if [ -f "mvnw" ]; then
-              chmod +x mvnw
-              ./mvnw checkstyle:check || echo "Checkstyle may have failed but continuing"
-            else
-              echo "mvnw not found in $service"
-            fi
-            cd ..
-          fi
+          cd $service
+          ./mvnw checkstyle:check || true
+          cd ..
         done
 
   build-and-package:
@@ -165,16 +148,10 @@ jobs:
     - name: Build Microservices
       run: |
         for service in microservice-gestion-*; do
-          if [ -d "$service" ]; then
-            echo "Building $service"
-            cd $service
-            if [ ! -f "mvnw" ]; then
-              mvn -N wrapper:wrapper
-            fi
-            chmod +x mvnw
-            ./mvnw clean package -DskipTests
-            cd ..
-          fi
+          cd $service
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
+          cd ..
         done
         
     # Build Frontend    
@@ -185,14 +162,10 @@ jobs:
         
     - name: Build Frontend
       run: |
-        if [ ! -d "frontenddevops" ]; then
-          echo "frontenddevops directory not found"
-          exit 1
-        fi
         cd frontenddevops
         npm install -g @angular/cli
-        npm ci || npm install
-        ng build --configuration=production || ng build --prod || echo "Frontend build failed but continuing"
+        npm ci
+        ng build --configuration=production
         
     # Package as artifacts
     - name: Upload build artifacts
@@ -217,63 +190,36 @@ jobs:
         
     - name: Build and push Docker images
       run: |
-        # Vérifier si le frontend existe
-        if [ -d "frontenddevops" ] && [ -f "frontenddevops/Dockerfile" ]; then
-          echo "Building frontend Docker image"
-          docker build -f frontenddevops/Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest ./frontenddevops
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
-        else
-          echo "Frontend Dockerfile not found, creating a simple one"
-          mkdir -p frontenddevops/dist
-          echo "FROM nginx:alpine" > frontenddevops/Dockerfile
-          echo "COPY dist/ /usr/share/nginx/html" >> frontenddevops/Dockerfile
-          echo "EXPOSE 80" >> frontenddevops/Dockerfile
-          echo "CMD [\"nginx\", \"-g\", \"daemon off;\"]" >> frontenddevops/Dockerfile
-          docker build -f frontenddevops/Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest ./frontenddevops
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
-        fi
+        # Build Frontend
+        docker build -f frontenddevops/Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest .
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
 
         # Configuration des microservices avec leurs ports
         declare -A services=(
           ["microservice-gestion-cours"]="9001"
-          ["microservice-gestion-prof"]="9002"
+          ["microservice-gestion-professeur"]="9002"
           ["microservice-gestion-etudiant"]="9003"
           ["microservice-gestion-classe"]="9004"
-          ["microservice-gestion-emploi-du-temp"]="9005"
+          ["microservice-gestion-emploi-temps"]="9005"
         )
 
         # Build et push pour chaque microservice
         for service in "${!services[@]}"; do
-          if [ -d "$service" ]; then
-            PORT="${services[$service]}"
-            SERVICE_NAME=$(echo $service | cut -d'-' -f3-)
-            
-            echo "Building $service on port $PORT"
-            
-            # Vérifier si Dockerfile existe
-            if [ ! -f "$service/Dockerfile" ]; then
-              echo "Dockerfile not found in $service, creating a simple one"
-              echo "FROM openjdk:17-jdk-slim" > $service/Dockerfile
-              echo "ARG PORT=8080" >> $service/Dockerfile
-              echo "ENV SERVER_PORT=\${PORT}" >> $service/Dockerfile
-              echo "COPY target/*.jar app.jar" >> $service/Dockerfile
-              echo "EXPOSE \${PORT}" >> $service/Dockerfile
-              echo "ENTRYPOINT [\"java\", \"-jar\", \"/app.jar\"]" >> $service/Dockerfile
-            fi
-            
-            # Build avec le port configuré
-            docker build -f $service/Dockerfile \
-              --build-arg PORT=$PORT \
-              -t ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest \
-              -t ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:${{ github.sha }} \
-              ./$service
-            
-            # Push des images
-            docker push ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest
-            docker push ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:${{ github.sha }}
-          else
-            echo "Service directory $service not found, skipping"
-          fi
+          PORT="${services[$service]}"
+          SERVICE_NAME=$(echo $service | cut -d'-' -f3-)
+          
+          echo "Building $service on port $PORT"
+          
+          # Build avec le port configuré
+          docker build -f $service/Dockerfile \
+            --build-arg PORT=$PORT \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:${{ github.sha }} \
+            ./$service
+          
+          # Push des images
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:${{ github.sha }}
         done
 
   deploy-dev:
@@ -320,7 +266,6 @@ jobs:
 
   monitoring:
     name: Application Monitoring
-    if: always() && (needs.deploy-dev.result == 'success' || needs.deploy-prod.result == 'success')
     needs: [deploy-dev, deploy-prod]
     runs-on: ubuntu-latest
     
@@ -330,7 +275,7 @@ jobs:
         echo "Vérification de la santé des microservices"
         # Ajoutez ici vos commandes de monitoring 
 
-    - name: Create Docker Compose File
+    - name: Deploy Services
       run: |
         # Création du docker-compose pour le déploiement
         cat > docker-compose.yml <<EOF
@@ -342,10 +287,10 @@ jobs:
               - "80:80"
             depends_on:
               - cours
-              - prof
+              - professeur
               - etudiant
               - classe
-              - emploi-du-temp
+              - emploi-temps
 
           cours:
             image: ${{ secrets.DOCKERHUB_USERNAME }}/cours:latest
@@ -354,8 +299,8 @@ jobs:
             environment:
               - SERVER_PORT=9001
               
-          prof:
-            image: ${{ secrets.DOCKERHUB_USERNAME }}/prof:latest
+          professeur:
+            image: ${{ secrets.DOCKERHUB_USERNAME }}/professeur:latest
             ports:
               - "9002:9002"
             environment:
@@ -375,12 +320,10 @@ jobs:
             environment:
               - SERVER_PORT=9004
               
-          emploi-du-temp:
-            image: ${{ secrets.DOCKERHUB_USERNAME }}/emploi-du-temp:latest
+          emploi-temps:
+            image: ${{ secrets.DOCKERHUB_USERNAME }}/emploi-temps:latest
             ports:
               - "9005:9005"
             environment:
               - SERVER_PORT=9005
-        EOF
-        
-        echo "Docker Compose file created successfully"
+        EOF 
