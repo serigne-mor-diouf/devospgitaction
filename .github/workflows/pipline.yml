@@ -252,12 +252,10 @@ jobs:
           # Créer un Dockerfile simple si nécessaire
           if [ ! -f "frontenddevops/Dockerfile" ]; then
             echo "Creating Dockerfile for frontend"
-            cat > frontenddevops/Dockerfile <<EOF
-FROM nginx:alpine
-COPY dist/ /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-EOF
+            echo "FROM nginx:alpine" > frontenddevops/Dockerfile
+            echo "COPY dist/ /usr/share/nginx/html" >> frontenddevops/Dockerfile
+            echo "EXPOSE 80" >> frontenddevops/Dockerfile
+            echo "CMD [\"nginx\", \"-g\", \"daemon off;\"]" >> frontenddevops/Dockerfile
           fi
           
           # S'assurer que le répertoire dist existe
@@ -267,8 +265,8 @@ EOF
           fi
           
           echo "Building and pushing frontend Docker image"
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest ./frontenddevops
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
+          docker build -t "${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest" ./frontenddevops
+          docker push "${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest"
         fi
 
         # Configuration des microservices avec leurs ports
@@ -289,15 +287,13 @@ EOF
             echo "Building $service on port $PORT"
             
             # Créer un Dockerfile dynamique
-            cat > "$service/Dockerfile" <<EOF
-FROM openjdk:17-jdk-slim
-ARG PORT=$PORT
-ENV SERVER_PORT=\$PORT
-WORKDIR /app
-COPY target/*.jar app.jar
-EXPOSE \$PORT
-ENTRYPOINT ["java", "-jar", "app.jar"]
-EOF
+            echo "FROM openjdk:17-jdk-slim" > "$service/Dockerfile"
+            echo "ARG PORT=$PORT" >> "$service/Dockerfile"
+            echo "ENV SERVER_PORT=\$PORT" >> "$service/Dockerfile"
+            echo "WORKDIR /app" >> "$service/Dockerfile"
+            echo "COPY target/*.jar app.jar" >> "$service/Dockerfile"
+            echo "EXPOSE \$PORT" >> "$service/Dockerfile"
+            echo "ENTRYPOINT [\"java\", \"-jar\", \"app.jar\"]" >> "$service/Dockerfile"
             
             # Vérifier si le JAR existe
             if [ ! -f "$service/target/*.jar" ]; then
