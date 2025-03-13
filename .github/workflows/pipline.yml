@@ -67,7 +67,7 @@
             node-version: '18'
 
         # Installation Frontend (Angular)
-        - name: Install Frontend Dependencies
+        - name: Install Frontenddevops Dependencies
           run: |
             if [ ! -d "frontenddevops" ]; then
               echo "frontenddevops directory not found, skipping frontend steps"

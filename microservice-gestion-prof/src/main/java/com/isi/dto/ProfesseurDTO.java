@@ -19,6 +19,11 @@ public class ProfesseurDTO {
     private Long departementId;
     private List<Long> specialiteIds = new ArrayList<>();
 
+
+    public ProfesseurDTO() {
+
+    }
+
     public String getNom() {
         return nom;
     }

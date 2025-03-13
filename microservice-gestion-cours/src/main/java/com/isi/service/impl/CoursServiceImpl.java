@@ -36,9 +36,12 @@ public class CoursServiceImpl implements CoursService {
     }
 
     @Override
-    public Cours saveCours(CoursDto cours) {
-        Cours cour = convertToEntity(cours);
-        return coursRepository.save(cour);
+    public Cours saveCours(CoursDto coursDTO) {
+        if (coursRepository.existsByCode(coursDTO.getCode())) {
+            throw new IllegalArgumentException("Un cours avec ce code existe déjà");
+        }
+        Cours cours = convertToEntity(coursDTO);
+        return coursRepository.save(cours);
     }
 
     @Override
@@ -82,43 +85,23 @@ public class CoursServiceImpl implements CoursService {
     }
 
     // Méthode de conversion DTO vers Entité
-        private Cours convertToEntity(CoursDto coursDTO) {
+    private Cours convertToEntity(CoursDto dto) {
         Cours cours = new Cours();
-        cours.setNom(coursDTO.getNom());
-        cours.setDescription(coursDTO.getDescription());
-        cours.setCode(coursDTO.getCode());
-        cours.setVolumeHoraire(coursDTO.getVolumeHoraire());
-        cours.setCoefficient(coursDTO.getCoefficient());
-
-        if (coursDTO.getDateDebut() != null) {
-            cours.setDateDebut(LocalDate.parse(coursDTO.getDateDebut()));
-        }
-        if (coursDTO.getDateFin() != null) {
-            cours.setDateFin(LocalDate.parse(coursDTO.getDateFin()));
-        }
-
-        // Récupération du professeur
-        if (coursDTO.getProfesseurId() != null) {
-            Professeur professeur = professeurRepository.findById(coursDTO.getProfesseurId())
-                    .orElseThrow(() -> new EntityNotFoundException("Professeur non trouvé avec l'id: " + coursDTO.getProfesseurId()));
-            cours.setProfesseur(professeur);
-        }
-
-        // Récupération de la classe
-        if (coursDTO.getClasseId() != null) {
-            Classe classe = classeRepository.findById(coursDTO.getClasseId())
-                    .orElseThrow(() -> new EntityNotFoundException("Classe non trouvée avec l'id: " + coursDTO.getClasseId()));
-            cours.setClasse(classe);
-        }
-
+        cours.setCode(dto.getCode());
+        cours.setNom(dto.getNom());
+        cours.setDescription(dto.getDescription());
+        cours.setVolumeHoraire(dto.getVolumeHoraire());
+        cours.setCoefficient(dto.getCoefficient());
+        cours.setDateDebut(LocalDate.parse(dto.getDateDebut()));
+        cours.setDateFin(LocalDate.parse(dto.getDateFin()));
+        // Les relations seront gérées séparément
         return cours;
     }
 
-        @Override
+    @Override
     public void deleteCours(Long id) {
-        if (!coursRepository.existsById(id)) {
-            throw new EntityNotFoundException("Cours non trouvé avec l'id: " + id);
-        }
+        Cours cours = coursRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Cours non trouvé avec l'id: " + id));
         coursRepository.deleteById(id);
     }
 
@@ -142,12 +125,12 @@ public class CoursServiceImpl implements CoursService {
 
     @Override
     public List<Cours> getCoursByProfesseur(Long professeurId) {
-        return coursRepository.findByProfesseurId(professeurId);
+        return coursRepository.findByProfesseur_Id(professeurId);
     }
 
     @Override
     public List<Cours> getCoursByClasse(Long classeId) {
-        return coursRepository.findByClasseId(classeId);
+        return coursRepository.findByClasse_Id(classeId);
     }
 
     @Override

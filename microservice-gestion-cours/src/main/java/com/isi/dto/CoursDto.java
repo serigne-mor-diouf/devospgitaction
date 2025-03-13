@@ -18,6 +18,11 @@ public class CoursDto {
     private Integer volumeHoraire;
     private Integer coefficient;
 
+
+    public CoursDto() {
+
+    }
+
     public String getCode() {
         return code;
     }
