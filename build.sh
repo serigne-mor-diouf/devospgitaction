@@ -1,30 +1,14 @@
 #!/bin/bash
 
-# Charger les variables d'environnement
-set -a
-source .env
-set +a
+# Afficher le répertoire courant
+echo "Current directory: $(pwd)"
+ls -la
 
-# Création du répertoire de base
-mkdir -p /opt/render/project/src/
+# Configuration de l'environnement
+export SPRING_PROFILES_ACTIVE=prod
 
-# Copie de tous les fichiers du projet
-cp -r . /opt/render/project/src/
-
-# Construction des microservices
-cd /opt/render/project/src/
-
-# Liste des microservices
-services=(
-    "microservice-gestion-cours"
-    "microservice-gestion-prof"
-    "microservice-gestion-etudiant"
-    "microservice-gestion-classe"
-    "microservice-gestion-emploi-du-temp"
-)
-
-# Build de chaque microservice
-for service in "${services[@]}"; do
+# Build des microservices
+for service in microservice-gestion-*; do
     if [ -d "$service" ]; then
         echo "Building $service..."
         cd $service
@@ -37,9 +21,9 @@ done
 if [ -d "frontenddevops" ]; then
     echo "Building frontend..."
     cd frontenddevops
-    npm install
+    npm install --legacy-peer-deps
     npm run build
     cd ..
 fi
 
-echo "All microservices built successfully!" 
+echo "Build completed" 

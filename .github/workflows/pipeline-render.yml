@@ -17,20 +17,31 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Setup project structure
+    - name: Create and setup Render directory
       run: |
-        # Créer le répertoire Render
-        sudo mkdir -p /opt/render/project/src/
-        sudo chown -R $USER:$USER /opt/render/project/
-
-        # Copier tout le projet
+        # Créer les répertoires nécessaires avec sudo
+        sudo mkdir -p /opt/render/project/src
+        
+        # Changer le propriétaire du répertoire
+        sudo chown -R $USER:$USER /opt/render/project
+        
+        # Copier tous les fichiers du projet
         cp -r . /opt/render/project/src/
-
-        # Rendre le script executable
-        chmod +x /opt/render/project/src/build.sh
-
-        echo "Project structure setup complete"
+        
+        # Vérifier le contenu
+        echo "Contenu du répertoire source :"
+        ls -la
+        
+        echo "Contenu du répertoire Render :"
         ls -la /opt/render/project/src/
+        
+        # Rendre le script build.sh exécutable
+        if [ -f "/opt/render/project/src/build.sh" ]; then
+          chmod +x /opt/render/project/src/build.sh
+          echo "build.sh est maintenant exécutable"
+        else
+          echo "ATTENTION: build.sh non trouvé!"
+        fi
 
     - name: Verify Render Credentials
       run: |
