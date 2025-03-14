@@ -9,7 +9,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-classe-dashboard',
   templateUrl: './classe-dashboard.component.html',
-  styleUrls: ['./classe-dashboard.component.scss']
+  //styleUrls: ['./classe-dashboard.component.scss']
 })
 export class ClasseDashboardComponent implements OnInit, AfterViewInit {
   @ViewChild('niveauChart') niveauChart!: ElementRef;

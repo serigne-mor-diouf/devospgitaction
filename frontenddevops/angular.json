@@ -37,18 +37,19 @@
               "node_modules/@popperjs/core/dist/umd/popper.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js"
             ],
-            "budgets": [
-              {
+           "budgets": [
+             {
                 "type": "initial",
-                "maximumWarning": "2mb",
-                "maximumError": "5mb"
+                "maximumWarning": 2097152,  
+                "maximumError": 5242880    
               },
               {
                 "type": "anyComponentStyle",
-                "maximumWarning": "8kb",
-                "maximumError": "10kb"
+                "maximumWarning": 8192,   
+                "maximumError": 10240     
               }
             ]
+
           },
           "configurations": {
             "production": {
