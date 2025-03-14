@@ -310,6 +310,7 @@
           timeout-minutes: 10
 
       deploy-dev:
+        root-directory: devopsgitaction
         name: Deploy to Development
         if: github.ref == 'refs/heads/master'
         needs: build-and-package
@@ -334,6 +335,7 @@
             # Ajoutez ici vos commandes de déploiement
 
       deploy-prod:
+        root-directory: devopsgitaction
         name: Deploy to Production
         if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/master'
         needs: build-and-package
