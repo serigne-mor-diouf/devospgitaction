@@ -1,11 +1,9 @@
-FROM eclipse-temurin:17-jdk-alpine
-VOLUME /tmp
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
 COPY target/*.jar app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
 
+EXPOSE 8080
 
-# From openjdk:11
-# VOLUME /tmp
-# ADD target/microservice-utilisateur-0.0.1-SNAPSHOT.jar /jilms.jar
-# CMD ["java","-jar","/jilms.jar","--spring.profiles.active=dev"]
-# EXPOSE 9001
+ENTRYPOINT ["java", "-jar", "app.jar"]

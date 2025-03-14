@@ -1,0 +1,45 @@
+services:
+  # Frontend
+  - type: web
+    name: frontend
+    env: static
+    buildCommand: cd frontenddevops && npm install && npm run build
+    staticPublishPath: ./frontenddevops/dist/frontenddevops
+    envVars:
+      - key: NODE_VERSION
+        value: 18.0.0
+
+  # Microservices
+  - type: web
+    name: cours-service
+    env: docker
+    dockerfilePath: ./microservice-gestion-cours/Dockerfile
+    dockerContext: ./microservice-gestion-cours
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DATABASE_URL
+        fromDatabase:
+          name: isidevops
+          property: connectionString
+      - key: DATABASE_USERNAME
+        fromDatabase:
+          name: isidevops
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: isidevops
+          property: password
+
+  - type: web
+    name: prof-service
+    env: docker
+    dockerfilePath: ./microservice-gestion-prof/Dockerfile
+    dockerContext: ./microservice-gestion-prof
+    envVars:
+      - key: SERVER_PORT
+        value: 9002
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+
+  # Répétez pour les autres microservices... 

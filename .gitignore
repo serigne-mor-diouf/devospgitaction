@@ -1,0 +1,25 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Compiled output
+**/target/
+**/dist/
+**/build/
+
+# Dependencies
+**/node_modules/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+logs/
+
+# System Files
+.DS_Store
+Thumbs.db 
