@@ -19,20 +19,20 @@ deploy-prod:
 
     - name: Setup project structure
       run: |
-        # Créer le répertoire Render
-        sudo mkdir -p /opt/render/project/src/
-        sudo chown -R $USER:$USER /opt/render/project/
+        mkdir -p ~/render/project/src/
+        echo "Created ~/render/project/src/ successfully."
 
-        # Copier les fichiers de configuration
-        cp build.sh /opt/render/project/src/
-        cp render.yaml /opt/render/project/src/
-        cp docker-compose.yml /opt/render/project/src/
+        # Copier les fichiers s'ils existent
+        [ -f build.sh ] && cp build.sh ~/render/project/src/
+        [ -f render.yaml ] && cp render.yaml ~/render/project/src/
+        [ -f docker-compose.yml ] && cp docker-compose.yml ~/render/project/src/
 
-        # Copier les artifacts
-        cp -r app-build/* /opt/render/project/src/
+        # Copier les artifacts si le dossier existe
+        [ -d app-build ] && cp -r app-build/* ~/render/project/src/
 
-        # Rendre le script executable
-        chmod +x /opt/render/project/src/build.sh
+          # Rendre le script exécutable uniquement si présent
+        [ -f ~/render/project/src/build.sh ] && chmod +x ~/render/project/src/build.sh
+
 
     - name: Deploy to Render
       env:
