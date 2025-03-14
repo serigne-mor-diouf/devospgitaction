@@ -37,33 +37,18 @@ on:
 - name: Build Frontend
   run: |
     if [ -d "frontenddevops" ]; then
-      echo "Setting up frontend build..."
       cd frontenddevops
       
-      # Afficher la version de Node
-      node --version
-      npm --version
+      # Clean install
+      rm -rf node_modules package-lock.json
       
-      # Nettoyer l'installation
-      rm -rf node_modules
-      rm -f package-lock.json
-      
-      # Installer les dépendances
+      # Install dependencies
       npm install --legacy-peer-deps --force
+      npm install bootstrap@5.3.0 @popperjs/core@2.11.8 --save
       
-      # Vérifier les scripts disponibles
-      echo "Available scripts:"
-      npm run || true
-      
-      # Build avec plus de logs
-      echo "Starting build..."
-      npm run build --verbose || {
-        echo "Build failed. Checking for errors..."
-        cat npm-debug.log || true
-        exit 1
-      }
+      # Build with increased memory
+      export NODE_OPTIONS="--max_old_space_size=4096"
+      npm run build -- --configuration production
       
       cd ..
-    else
-      echo "Frontend directory not found"
     fi 

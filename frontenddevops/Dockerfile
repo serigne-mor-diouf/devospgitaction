@@ -1,32 +1,38 @@
-# Étape de build
+# Build stage
 FROM node:18-alpine AS builder
 
-# Définir le répertoire de travail
+# Set working directory
 WORKDIR /app
 
-# Copier package.json et package-lock.json
+# Copy package files
 COPY package*.json ./
 
-# Installer les dépendances
+# Install dependencies
 RUN npm install --legacy-peer-deps --force
 
-# Copier le reste des fichiers
+# Install Bootstrap and Popper.js explicitly
+RUN npm install bootstrap@5.3.0 @popperjs/core@2.11.8 --save
+
+# Copy project files
 COPY . .
 
-# Build de l'application
-RUN npm run build || (echo "Build failed" && exit 1)
+# Display Angular configuration
+RUN cat angular.json
 
-# Étape de production avec Nginx
+# Build with increased memory
+RUN node --max_old_space_size=4096 ./node_modules/@angular/cli/bin/ng build --configuration production
+
+# Production stage
 FROM nginx:alpine
 
-# Copier la configuration Nginx
+# Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copier les fichiers buildés depuis l'étape précédente
+# Copy built files
 COPY --from=builder /app/dist/frontenddevops /usr/share/nginx/html
 
-# Exposer le port 80
+# Expose port 80
 EXPOSE 80
 
-# Démarrer Nginx
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"] 

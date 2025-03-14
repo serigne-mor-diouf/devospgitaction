@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "allodocteurangulars": {
+    "frontenddevops": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,12 +17,11 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/allodocteurangulars",
+            "outputPath": "dist/frontenddevops",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
-              "zone.js",
-              "@angular/localize/init"
+              "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
@@ -37,6 +36,18 @@
             "scripts": [
               "node_modules/@popperjs/core/dist/umd/popper.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js"
+            ],
+            "budgets": [
+              {
+                "type": "initial",
+                "maximumWarning": "2mb",
+                "maximumError": "5mb"
+              },
+              {
+                "type": "anyComponentStyle",
+                "maximumWarning": "8kb",
+                "maximumError": "10kb"
+              }
             ]
           },
           "configurations": {
@@ -70,10 +81,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "allodocteurangulars:build:production"
+              "browserTarget": "frontenddevops:build:production"
             },
             "development": {
-              "browserTarget": "allodocteurangulars:build:development"
+              "browserTarget": "frontenddevops:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -81,7 +92,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "allodocteurangulars:build"
+            "browserTarget": "frontenddevops:build"
           }
         },
         "test": {
