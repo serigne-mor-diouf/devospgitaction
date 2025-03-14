@@ -520,4 +520,4 @@
           mysql_data:
           grafana_data:
 
-            echo "Docker Compose file created successfully" 
+            echo "Docker Compose file created successfully"
