@@ -33,3 +33,37 @@ on:
         docker push "${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest"
       fi
     done 
+
+- name: Build Frontend
+  run: |
+    if [ -d "frontenddevops" ]; then
+      echo "Setting up frontend build..."
+      cd frontenddevops
+      
+      # Afficher la version de Node
+      node --version
+      npm --version
+      
+      # Nettoyer l'installation
+      rm -rf node_modules
+      rm -f package-lock.json
+      
+      # Installer les dépendances
+      npm install --legacy-peer-deps --force
+      
+      # Vérifier les scripts disponibles
+      echo "Available scripts:"
+      npm run || true
+      
+      # Build avec plus de logs
+      echo "Starting build..."
+      npm run build --verbose || {
+        echo "Build failed. Checking for errors..."
+        cat npm-debug.log || true
+        exit 1
+      }
+      
+      cd ..
+    else
+      echo "Frontend directory not found"
+    fi 
