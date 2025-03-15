@@ -28,8 +28,11 @@ FROM nginx:alpine
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy built files
-COPY --from=builder /app/dist/frontenddevops /usr/share/nginx/html
+# Copy built files with proper permissions
+COPY --chown=nginx:nginx --from=builder /app/dist/frontenddevops /usr/share/nginx/html
+
+# Display nginx configuration (for debugging)
+RUN cat /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80
