@@ -316,7 +316,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: development
-      url: http://dev-app.example.com
+      url: https://devospgitaction-3.onrender.com
     
     steps:
     - name: Checkout code
@@ -335,12 +335,12 @@ jobs:
 
   deploy-prod:
     name: Deploy to Production
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master'
     needs: build-and-package
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://devops-ci-cd.onrender.com
+      url: https://devospgitaction-3.onrender.com
     
     steps:
     - name: Verify Render Credentials
