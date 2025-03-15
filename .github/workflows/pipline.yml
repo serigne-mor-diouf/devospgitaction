@@ -390,57 +390,72 @@ jobs:
         echo "Vérification de la santé des microservices"
         # Ajoutez ici vos commandes de monitoring 
 
-    - name: Create Docker Compose File
-      run: |
-        # Création du docker-compose pour le déploiement
-        cat > docker-compose.yml <<EOF
-        version: '3'
-        services:
-          frontenddevops:
-            image: ${{ secrets.DOCKERHUB_USERNAME }}/frontenddevops:latest
-            ports:
-              - "80:80"
-            depends_on:
-              - cours
-              - prof
-              - etudiant
-              - classe
-              - emploi-du-temp
-
-          cours:
-            image: ${{ secrets.DOCKERHUB_USERNAME }}/cours:latest
-            ports:
-              - "9001:9001"
-            environment:
-              - SERVER_PORT=9001
-              
-          prof:
-            image: ${{ secrets.DOCKERHUB_USERNAME }}/prof:latest
-            ports:
-              - "9002:9002"
-            environment:
-              - SERVER_PORT=9002
-              
-          etudiant:
-            image: ${{ secrets.DOCKERHUB_USERNAME }}/etudiant:latest
-            ports:
-              - "9003:9003"
-            environment:
-              - SERVER_PORT=9003
-              
-          classe:
-            image: ${{ secrets.DOCKERHUB_USERNAME }}/classe:latest
-            ports:
-              - "9004:9004"
-            environment:
-              - SERVER_PORT=9004
-              
-          emploi-du-temp:
-            image: ${{ secrets.DOCKERHUB_USERNAME }}/emploi-du-temp:latest
-            ports:
-              - "9005:9005"
-            environment:
-              - SERVER_PORT=9005
-        EOF
-        
-        echo "Docker Compose file created successfully" 
+        - name: Create Docker Compose File
+        run: |
+          cat > docker-compose.yml <<EOF
+          version: '3.8'
+          services:
+            frontenddevops:
+              image: ${{ secrets.DOCKERHUB_USERNAME }}/frontenddevops:latest
+              ports:
+                - "80:80"
+              depends_on:
+                - cours
+                - prof
+                - etudiant
+                - classe
+                - emploi-du-temp
+              networks:
+                - mynetwork
+      
+            cours:
+              image: ${{ secrets.DOCKERHUB_USERNAME }}/cours:latest
+              ports:
+                - "9001:9001"
+              environment:
+                - SERVER_PORT=9001
+              networks:
+                - mynetwork
+      
+            prof:
+              image: ${{ secrets.DOCKERHUB_USERNAME }}/prof:latest
+              ports:
+                - "9002:9002"
+              environment:
+                - SERVER_PORT=9002
+              networks:
+                - mynetwork
+      
+            etudiant:
+              image: ${{ secrets.DOCKERHUB_USERNAME }}/etudiant:latest
+              ports:
+                - "9003:9003"
+              environment:
+                - SERVER_PORT=9003
+              networks:
+                - mynetwork
+      
+            classe:
+              image: ${{ secrets.DOCKERHUB_USERNAME }}/classe:latest
+              ports:
+                - "9004:9004"
+              environment:
+                - SERVER_PORT=9004
+              networks:
+                - mynetwork
+      
+            emploi-du-temp:
+              image: ${{ secrets.DOCKERHUB_USERNAME }}/emploi-du-temp:latest
+              ports:
+                - "9005:9005"
+              environment:
+                - SERVER_PORT=9005
+              networks:
+                - mynetwork
+      
+          networks:
+            mynetwork:
+              driver: bridge
+          EOF
+          echo "Docker Compose file created successfully"
+       
