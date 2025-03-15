@@ -11,6 +11,10 @@ import java.util.Optional;
 public interface CoursRepository extends JpaRepository<Cours, Long> {
     Optional<Cours> findByCode(String code);
     boolean existsByCode(String code);
+    List<Cours> findByProfesseur_Id(Long professeurId);
+    List<Cours> findByClasse_Id(Long classeId);
+
     List<Cours> findByProfesseurId(Long professeurId);
+
     List<Cours> findByClasseId(Long classeId);
 } 

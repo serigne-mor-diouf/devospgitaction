@@ -69,4 +69,11 @@ public class Base implements Serializable{
 	@JsonIgnore
 	private long version;
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 }

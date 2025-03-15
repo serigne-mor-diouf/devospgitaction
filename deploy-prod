@@ -1,0 +1,67 @@
+deploy-prod:
+    name: Deploy to Production
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    needs: build-and-package
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://devospgitaction-1.onrender.com
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: app-build
+        path: app-build
+
+    - name: Setup project structure
+      run: |
+        mkdir -p ~/render/project/src/
+        echo "Created ~/render/project/src/ successfully."
+
+        # Copier les fichiers s'ils existent
+        [ -f build.sh ] && cp build.sh ~/render/project/src/
+        [ -f render.yaml ] && cp render.yaml ~/render/project/src/
+        [ -f docker-compose.yml ] && cp docker-compose.yml ~/render/project/src/
+
+        # Copier les artifacts si le dossier existe
+        [ -d app-build ] && cp -r app-build/* ~/render/project/src/
+
+          # Rendre le script exécutable uniquement si présent
+        [ -f ~/render/project/src/build.sh ] && chmod +x ~/render/project/src/build.sh
+
+
+    - name: Deploy to Render
+      env:
+        RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      run: |
+        # Exécuter le script de build
+        cd /opt/render/project/src/
+        ./build.sh
+
+        # Déclencher le déploiement Render
+        curl -X POST \
+          -H "Authorization: Bearer $RENDER_API_KEY" \
+          -H "Content-Type: application/json" \
+          "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys"
+
+        echo "Waiting for deployment to complete..."
+        sleep 120
+
+    - name: Verify Deployment
+      run: |
+        # Vérifier que le répertoire existe
+        ls -la /opt/render/project/src/
+
+        # Vérifier l'état des services
+        for port in 9001 9002 9003 9004 9005; do
+          echo "Checking service on port $port..."
+          curl -f "https://devospgitaction-1.onrender.com:$port/actuator/health" || echo "Service on port $port not responding"
+        done
+
+        # Vérifier le frontend
+        curl -f "https://devospgitaction-1.onrender.com" || echo "Frontend not responding" 
