@@ -337,7 +337,7 @@
       deploy-prod:
         root-directory: devopsgitaction
         name: Deploy to Production
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master'
         needs: build-and-package
         runs-on: ubuntu-latest
         environment:
