@@ -390,9 +390,9 @@ jobs:
         echo "Vérification de la santé des microservices"
         # Ajoutez ici vos commandes de monitoring 
 
-        - name: Create Docker Compose File
-        run: |
-          cat > docker-compose.yml <<EOF
+    - name: Create Docker Compose File
+      run: |
+        cat > docker-compose.yml <<EOF
           version: '3.8'
           services:
             frontenddevops:
