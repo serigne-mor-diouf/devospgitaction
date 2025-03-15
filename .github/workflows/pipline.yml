@@ -519,5 +519,6 @@
         volumes:
           mysql_data:
           grafana_data:
-
+            
             echo "Docker Compose file created successfully"
+          
