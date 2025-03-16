@@ -457,5 +457,5 @@ jobs:
             mynetwork:
               driver: bridge
           EOF
-          echo "Docker Compose file created successfully"
+          echo "Docker Compose file created successfully cv aussi"
        
