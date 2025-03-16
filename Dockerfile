@@ -4,7 +4,7 @@ FROM maven:3.9.6-eclipse-temurin-17 AS builder
 # Définir le répertoire de travail
 WORKDIR /app
 
-# Copier le code source dans l'image Docker (ici, on copie tout le projet)
+# Copier tous les fichiers du projet (y compris pom.xml) dans le répertoire de travail
 COPY . .
 
 # Compiler le projet
