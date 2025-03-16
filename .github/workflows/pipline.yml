@@ -458,4 +458,3 @@ jobs:
               driver: bridge
           EOF
           echo "Docker Compose file created successfully cv aussi"
-       s
