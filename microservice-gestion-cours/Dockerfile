@@ -1,12 +1,14 @@
-#FROM openjdk:11
-#COPY target/microservice-utilisateur-0.0.1-SNAPSHOT.jar /app.jar
-#EXPOSE 9001
-#ENTRYPOINT ["java","-jar","app.jar"]
+# Utilisation de l'image de base OpenJDK 17
+FROM openjdk:17
 
-
-
-From openjdk:11
+# Définir un volume temporaire pour stocker les fichiers
 VOLUME /tmp
-ADD target/microservice-utilisateur-0.0.1-SNAPSHOT.jar /jilms.jar
-CMD ["java","-jar","/jilms.jar","--spring.profiles.active=dev"]
+
+# Ajouter le fichier JAR dans l'image Docker
+ADD target/microservice-cours-0.0.1-SNAPSHOT.jar /microservice-cours.jar
+
+# Commande par défaut pour démarrer l'application Spring Boot
+CMD ["java", "-jar", "/microservice-cours.jar", "--spring.profiles.active=dev"]
+
+# Exposer le port 9004 pour ce microservice
 EXPOSE 9001

@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.isi.MicroserviceProfApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 47.805 s - in com.isi.MicroserviceProfApplicationTests
