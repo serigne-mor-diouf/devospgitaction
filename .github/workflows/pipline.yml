@@ -287,16 +287,18 @@ jobs:
             echo "Building $service on port $PORT"
             
             # Créer un Dockerfile dynamique
-            echo "FROM openjdk:17-jdk-slim" > "$service/Dockerfile"
-            echo "ARG PORT=$PORT" >> "$service/Dockerfile"
-            echo "ENV SERVER_PORT=\$PORT" >> "$service/Dockerfile"
-            echo "WORKDIR /app" >> "$service/Dockerfile"
-            echo "COPY target/*.jar app.jar" >> "$service/Dockerfile"
-            echo "EXPOSE \$PORT" >> "$service/Dockerfile"
-            echo "ENTRYPOINT [\"java\", \"-jar\", \"app.jar\"]" >> "$service/Dockerfile"
+            cat > "$service/Dockerfile" << EOF
+            FROM openjdk:17-jdk-slim
+            ARG PORT=$PORT
+            ENV SERVER_PORT=\$PORT
+            WORKDIR /app
+            COPY target/*.jar app.jar
+            EXPOSE \$PORT
+            ENTRYPOINT ["java", "-jar", "app.jar"]
+            EOF
             
-            # Vérifier si le JAR existe
-            if [ ! -f "$service/target/*.jar" ]; then
+            # Vérifier si le JAR existe (correction de la syntaxe)
+            if [ ! -f "$service/target/"*.jar ]; then
               echo "Creating placeholder JAR for $service"
               mkdir -p "$service/target"
               touch "$service/target/$SERVICE_NAME.jar"
@@ -335,12 +337,12 @@ jobs:
 
   deploy-prod:
     name: Deploy to Production
-    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     needs: build-and-package
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://devospgitaction-3.onrender.com
+      url: https://devops-ci-cd.onrender.com
     
     steps:
     - name: Verify Render Credentials
@@ -392,70 +394,55 @@ jobs:
 
     - name: Create Docker Compose File
       run: |
+        # Création du docker-compose pour le déploiement
         cat > docker-compose.yml <<EOF
-          version: '3.8'
-          services:
-            frontenddevops:
-              image: ${{ secrets.DOCKERHUB_USERNAME }}/frontenddevops:latest
-              ports:
-                - "80:80"
-              depends_on:
-                - cours
-                - prof
-                - etudiant
-                - classe
-                - emploi-du-temp
-              networks:
-                - mynetwork
-      
-            cours:
-              image: ${{ secrets.DOCKERHUB_USERNAME }}/cours:latest
-              ports:
-                - "9001:9001"
-              environment:
-                - SERVER_PORT=9001
-              networks:
-                - mynetwork
-      
-            prof:
-              image: ${{ secrets.DOCKERHUB_USERNAME }}/prof:latest
-              ports:
-                - "9002:9002"
-              environment:
-                - SERVER_PORT=9002
-              networks:
-                - mynetwork
-      
-            etudiant:
-              image: ${{ secrets.DOCKERHUB_USERNAME }}/etudiant:latest
-              ports:
-                - "9003:9003"
-              environment:
-                - SERVER_PORT=9003
-              networks:
-                - mynetwork
-      
-            classe:
-              image: ${{ secrets.DOCKERHUB_USERNAME }}/classe:latest
-              ports:
-                - "9004:9004"
-              environment:
-                - SERVER_PORT=9004
-              networks:
-                - mynetwork
-      
-            emploi-du-temp:
-              image: ${{ secrets.DOCKERHUB_USERNAME }}/emploi-du-temp:latest
-              ports:
-                - "9005:9005"
-              environment:
-                - SERVER_PORT=9005
-              networks:
-                - mynetwork
-      
-          networks:
-            mynetwork:
-              driver: bridge
-          EOF
-          echo "Docker Compose file created successfully cv aussi"
-       
+        version: '3'
+        services:
+          frontend:
+            image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
+            ports:
+              - "80:80"
+            depends_on:
+              - cours
+              - prof
+              - etudiant
+              - classe
+              - emploi-du-temp
+
+          cours:
+            image: ${{ secrets.DOCKERHUB_USERNAME }}/cours:latest
+            ports:
+              - "9001:9001"
+            environment:
+              - SERVER_PORT=9001
+              
+          prof:
+            image: ${{ secrets.DOCKERHUB_USERNAME }}/prof:latest
+            ports:
+              - "9002:9002"
+            environment:
+              - SERVER_PORT=9002
+              
+          etudiant:
+            image: ${{ secrets.DOCKERHUB_USERNAME }}/etudiant:latest
+            ports:
+              - "9003:9003"
+            environment:
+              - SERVER_PORT=9003
+              
+          classe:
+            image: ${{ secrets.DOCKERHUB_USERNAME }}/classe:latest
+            ports:
+              - "9004:9004"
+            environment:
+              - SERVER_PORT=9004
+              
+          emploi-du-temp:
+            image: ${{ secrets.DOCKERHUB_USERNAME }}/emploi-du-temp:latest
+            ports:
+              - "9005:9005"
+            environment:
+              - SERVER_PORT=9005
+        EOF
+        
+        echo "Docker Compose file created successfully" 
