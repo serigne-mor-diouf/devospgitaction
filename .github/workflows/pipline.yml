@@ -335,7 +335,7 @@ jobs:
 
   deploy-prod:
     name: Deploy to Production
-    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     needs: build-and-package
     runs-on: ubuntu-latest
     environment:
@@ -343,6 +343,34 @@ jobs:
       url: https://devospgitaction-3.onrender.com
     
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    # Préparation de la structure de répertoire pour Render
+    - name: Prepare directory structure for Render
+      run: |
+        echo "Creating devospgitaction directory required by Render"
+        mkdir -p devospgitaction
+        
+        # Copier tout le contenu du projet dans le répertoire devospgitaction
+        echo "Copying project files to devospgitaction directory"
+        cp -r ./* devospgitaction/ || true
+        
+        # Créer un fichier index.html simple pour vérification
+        echo "<html><body><h1>Deployed via GitHub Actions</h1><p>$(date)</p></body></html>" > devospgitaction/index.html
+        
+        # Vérifier la structure du répertoire
+        echo "Directory structure created:"
+        ls -la
+        echo "devospgitaction directory contents:"
+        ls -la devospgitaction/
+    
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: app-build
+        path: devospgitaction/app-build
+      
     - name: Verify Render Credentials
       run: |
         if [ -z "${{ secrets.RENDER_SERVICE_ID }}" ]; then
@@ -380,7 +408,7 @@ jobs:
 
   monitoring:
     name: Application Monitoring
-    if: always() && (needs.deploy-dev.result == 'success' || needs.deploy-prod.result == 'success')
+    if: always() && (needs.deploy-dev.result == 'success' || needs.deploy-prod.result == 'success' || needs.deploy-prod.result == 'skipped')
     needs: [deploy-dev, deploy-prod]
     runs-on: ubuntu-latest
     
@@ -396,7 +424,7 @@ jobs:
           version: '3.8'
           services:
             frontenddevops:
-              image: ${{ secrets.DOCKERHUB_USERNAME }}/frontenddevops:latest
+              image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
               ports:
                 - "80:80"
               depends_on:
@@ -456,6 +484,5 @@ jobs:
           networks:
             mynetwork:
               driver: bridge
-          EOF
-          echo "Docker Compose file created successfully"
-       
+        EOF
+        echo "Docker Compose file created successfully"
