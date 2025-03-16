@@ -5,7 +5,7 @@ FROM openjdk:17
 VOLUME /tmp
 
 # Ajouter le fichier JAR dans l'image Docker
-ADD target/microservice-prof-0.0.1-SNAPSHOT.jar /microservice-prof.jar
+COPY target/microservice-prof-0.0.1-SNAPSHOT.jar /microservice-prof.jar
 
 # Commande par défaut pour démarrer l'application Spring Boot
 CMD ["java", "-jar", "/microservice-prof.jar", "--spring.profiles.active=dev"]
