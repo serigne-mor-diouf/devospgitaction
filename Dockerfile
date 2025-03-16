@@ -4,8 +4,8 @@ FROM openjdk:17-jdk-slim
 # Définir le répertoire de travail
 WORKDIR /app
 
-# Copier le fichier .jar généré dans le répertoire build/libs/
-COPY build/libs/*.jar app.jar
+# Copier le fichier .jar généré dans le répertoire target/
+COPY target/*.jar app.jar
 
 # Exposer le port sur lequel l'application va tourner
 EXPOSE 8080
