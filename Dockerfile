@@ -4,11 +4,9 @@ FROM openjdk:17-jdk-slim
 # Définir le répertoire de travail
 WORKDIR /app
 
-# Créer un répertoire target si nécessaire
-RUN mkdir -p target
-
-# Copier le fichier .jar généré ou créer un fichier vide si aucun n'existe
-COPY target/*.jar app.jar 2>/dev/null || echo "Aucun fichier JAR trouvé, création d'un fichier vide" && touch app.jar
+# Vérifier si le fichier JAR existe avant de le copier
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
 
 # Exposer le port sur lequel l'application va tourner
 EXPOSE 8080
