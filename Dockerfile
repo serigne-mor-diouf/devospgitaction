@@ -1,8 +1,10 @@
-# Étape 1 : Construire l'application avec Maven
+# Étape 1 : Définir une image de base avec Maven
 FROM maven:3.9.6-eclipse-temurin-17 AS builder
+
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier le projet Maven dans le conteneur
+# Copier le code source dans l'image Docker (ici, on copie tout le projet)
 COPY . .
 
 # Compiler le projet
@@ -16,7 +18,7 @@ WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 
 # Exposer le port dynamique de l'application
-EXPOSE ${PORT}
+EXPOSE 8080
 
 # Démarrer l'application
 CMD ["java", "-jar", "app.jar"]

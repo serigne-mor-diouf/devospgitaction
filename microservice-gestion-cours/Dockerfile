@@ -1,5 +1,5 @@
 # Utilisation de l'image de base OpenJDK 17
-FROM openjdk:17
+FROM openjdk:17-jdk-slim
 
 # Définir un volume temporaire pour stocker les fichiers
 VOLUME /tmp

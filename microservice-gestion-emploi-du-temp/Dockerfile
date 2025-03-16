@@ -1,12 +1,14 @@
-#FROM openjdk:11
-#COPY target/microservice-utilisateur-0.0.1-SNAPSHOT.jar /app.jar
-#EXPOSE 9001
-#ENTRYPOINT ["java","-jar","app.jar"]
+# Utilisation de l'image de base OpenJDK 11
+FROM openjdk:11
 
-
-
-From openjdk:11
+# Définir un volume temporaire pour stocker les fichiers
 VOLUME /tmp
-COPY target/microservice-utilisateur-0.0.1-SNAPSHOT.jar /jilms.jar
-CMD ["java","-jar","/jilms.jar","--spring.profiles.active=dev"]
-EXPOSE 9001
+
+# Copier le fichier JAR généré dans l'image Docker
+COPY target/microservice-emploi-du-temps-0.0.1-SNAPSHOT.jar /emploi-du-temps.jar
+
+# Commande par défaut pour démarrer l'application Spring Boot avec le profil dev
+CMD ["java", "-jar", "/emploi-du-temps.jar", "--spring.profiles.active=dev"]
+
+# Exposer le port 9005 pour ce microservice
+EXPOSE 9005
