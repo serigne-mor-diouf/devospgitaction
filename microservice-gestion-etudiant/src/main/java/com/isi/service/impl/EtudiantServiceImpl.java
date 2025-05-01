@@ -19,9 +19,7 @@ import java.util.List;
 @Service
 public class EtudiantServiceImpl implements EtudiantService {
 
-
     private final EtudiantRepository etudiantRepository;
-
 
     private final ClasseRepository classeRepository;
 
@@ -59,6 +57,7 @@ public class EtudiantServiceImpl implements EtudiantService {
         if (etudiantRepository.existsByEmail(etudiantDTO.getEmail())) {
             throw new IllegalArgumentException("Un étudiant avec cet email existe déjà");
         }
+
         if (etudiantRepository.existsByMatricule(etudiantDTO.getMatricule())) {
             throw new IllegalArgumentException("Un étudiant avec ce matricule existe déjà");
         }
@@ -145,4 +144,5 @@ public class EtudiantServiceImpl implements EtudiantService {
         return etudiantRepository.findByNomContainingOrPrenomContainingOrMatriculeContaining(
                 keyword, keyword, keyword);
     }
+
 }

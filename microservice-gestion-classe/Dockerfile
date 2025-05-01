@@ -3,8 +3,6 @@
 #EXPOSE 9001
 #ENTRYPOINT ["java","-jar","app.jar"]
 
-
-
 From openjdk:11
 VOLUME /tmp
 ADD target/microservice-utilisateur-0.0.1-SNAPSHOT.jar /jilms.jar
