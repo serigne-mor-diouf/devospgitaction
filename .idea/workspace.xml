@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="72db259e-e133-46f2-b9cf-940325bbc674" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/pipline.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/pipline.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/microservice-gestion-classe/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/microservice-gestion-classe/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/microservice-gestion-etudiant/src/main/java/com/isi/service/impl/EtudiantServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/microservice-gestion-etudiant/src/main/java/com/isi/service/impl/EtudiantServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +65,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1742160030444</updated>
-      <workItem from="1746130770044" duration="925000" />
+      <workItem from="1746130770044" duration="5387000" />
     </task>
     <servers />
   </component>
