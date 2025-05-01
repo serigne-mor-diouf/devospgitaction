@@ -3,7 +3,7 @@ FROM openjdk:11
 
 # Définir un volume temporaire pour stocker les fichiers
 VOLUME /tmp
-
+RUN mvn clean package -DskipTests
 # Copier le fichier JAR généré dans l'image Docker
 COPY target/microservice-emploi-du-temps-0.0.1-SNAPSHOT.jar /emploi-du-temps.jar
 

@@ -4,6 +4,7 @@ FROM openjdk:17-jdk-slim
 # Définir un volume temporaire pour stocker les fichiers
 VOLUME /tmp
 
+RUN mvn clean package -DskipTests
 # Ajouter le fichier JAR dans l'image Docker
 COPY target/microservice-cours-0.0.1-SNAPSHOT.jar /microservice-cours.jar
 
